@@ -493,7 +493,7 @@ async function sendMagicLink() {
   const errEl = document.getElementById('auth-error');
   errEl.style.display = 'none';
   try {
-    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.href } });
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: 'https://jessenava27-sudo.github.io/Bar-Study/' } });
     if (error) throw error;
     document.getElementById('auth-form').style.display = 'none';
     document.getElementById('auth-sent').style.display = 'block';
