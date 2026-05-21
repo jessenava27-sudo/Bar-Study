@@ -193,7 +193,6 @@ select.filter-select:focus { border-color: var(--navy); }
 .dot-ok { background: var(--gold); }
 .dot-weak { background: var(--orange); }
 .dot-new { background: var(--border); }
-
 .rule-main { display: flex; flex-direction: column; gap: 16px; }
 .rule-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: 0 2px 12px var(--shadow); overflow: hidden; border-left: 4px solid var(--border); transition: box-shadow 0.2s; }
 .rule-card:hover { box-shadow: 0 4px 20px rgba(15,30,53,0.14); }
@@ -220,8 +219,6 @@ select.filter-select:focus { border-color: var(--navy); }
 .comfort-btn.weak { border-color: var(--orange); color: var(--orange); }
 .comfort-btn.weak.active { background: var(--orange); color: var(--white); }
 .rule-fc-btn { margin-left: auto; }
-
-/* Rule flashcard */
 .rule-fc-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: 0 8px 40px rgba(15,30,53,0.15); max-width: 720px; margin: 0 auto; overflow: hidden; }
 .rfc-front { padding: 40px 40px 28px; min-height: 220px; display: flex; flex-direction: column; justify-content: center; }
 .rfc-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--ink-soft); margin-bottom: 16px; }
@@ -275,29 +272,6 @@ textarea.form-input { min-height: 90px; resize: vertical; }
 #toast { position: fixed; bottom: 28px; right: 28px; background: var(--navy); color: var(--white); padding: 12px 20px; border-radius: var(--radius); font-family: 'IBM Plex Mono', monospace; font-size: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); transform: translateY(80px); opacity: 0; transition: all 0.3s; z-index: 9999; }
 #toast.show { transform: translateY(0); opacity: 1; }
 @media (max-width: 900px) { .dash-grid, .rules-grid { grid-template-columns: 1fr; } #header-inner { flex-wrap: wrap; } .rule-sidebar { position: static; max-height: none; } }
-
-.upload-tabs { display: flex; gap: 0; margin-bottom: 20px; border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-.upload-tab { flex: 1; padding: 10px 16px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; background: var(--white); color: var(--ink-soft); cursor: pointer; border: none; border-right: 1px solid var(--border); transition: all 0.2s; }
-.upload-tab:last-child { border-right: none; }
-.upload-tab:hover { background: var(--cream); color: var(--navy); }
-.upload-tab.active { background: var(--navy); color: var(--white); }
-.upload-panel { display: none; }
-.upload-panel.active { display: block; }
-.parse-progress { margin-top: 16px; padding: 14px 16px; background: var(--cream); border-radius: var(--radius); font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-soft); display: none; }
-.parse-progress.show { display: block; }
-.parse-step { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
-.parse-step .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
-.parse-step.done .dot { background: var(--green); }
-.parse-step.active .dot { background: var(--gold); animation: pulse 1s infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-.wrong-only-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; padding: 10px 0; }
-.wrong-only-toggle input { width: 16px; height: 16px; cursor: pointer; }
-.import-summary { display: flex; gap: 16px; padding: 14px 20px; background: var(--navy); }
-.import-summary-stat { text-align: center; }
-.import-summary-num { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 900; color: var(--white); }
-.import-summary-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.5); }
-
-
 .upload-tabs { display:flex; gap:0; margin-bottom:20px; border:1.5px solid var(--border); border-radius:var(--radius); overflow:hidden; }
 .upload-tab { flex:1; padding:10px 16px; font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; background:var(--white); color:var(--ink-soft); cursor:pointer; border:none; border-right:1px solid var(--border); transition:all 0.2s; }
 .upload-tab:last-child { border-right:none; }
@@ -320,7 +294,6 @@ textarea.form-input { min-height: 90px; resize: vertical; }
 .import-summary-label { font-family:'IBM Plex Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.5); margin-top:3px; }
 .wrong-toggle { display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; margin-top:14px; padding:10px 14px; background:var(--cream); border-radius:var(--radius); border:1.5px solid var(--border); }
 .wrong-toggle input { width:16px; height:16px; cursor:pointer; accent-color:var(--navy); }
-
 .screenshot-drop { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 36px 24px; text-align: center; background: var(--white); cursor: pointer; transition: all 0.2s; }
 .screenshot-drop:hover, .screenshot-drop.drag-over { border-color: var(--navy); background: var(--cream); }
 .screenshot-drop .upload-icon { font-size: 36px; margin-bottom: 10px; }
@@ -338,7 +311,6 @@ textarea.form-input { min-height: 90px; resize: vertical; }
 .ai-q-card { background: var(--cream); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid var(--navy); }
 .ai-q-card .ai-q-meta { font-family: 'IBM Plex Mono', monospace; font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--ink-soft); margin-bottom: 4px; }
 .ai-q-card .ai-q-text { font-size: 12px; color: var(--ink); }
-
 </style>
 </head>
 <body>
@@ -394,6 +366,7 @@ textarea.form-input { min-height: 90px; resize: vertical; }
   <div id="page-upload" class="page"></div>
 </div>
 
+<!-- ── ADD QUESTION MODAL ────────────────────────────────────────── -->
 <div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeAddModal()">
   <div class="modal">
     <div class="modal-header">
@@ -427,6 +400,40 @@ textarea.form-input { min-height: 90px; resize: vertical; }
   </div>
 </div>
 
+<!-- ── EDIT QUESTION MODAL ───────────────────────────────────────── -->
+<div class="modal-overlay" id="edit-modal-overlay" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Edit Question</h2>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="edit-form" onsubmit="event.preventDefault()">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Topic *</label><input type="text" id="edit-topic" class="form-input" list="topic-list-edit"><datalist id="topic-list-edit"><option value="Civil Procedure"><option value="Constitutional Law"><option value="Contracts"><option value="Criminal Law"><option value="Evidence"><option value="Real Property"><option value="Torts"></datalist></div>
+          <div class="form-group"><label class="form-label">Subtopic *</label><input type="text" id="edit-subtopic" class="form-input"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Question Text *</label><textarea id="edit-question" class="form-input"></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Answer A *</label><input type="text" id="edit-a" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Answer B *</label><input type="text" id="edit-b" class="form-input"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Answer C *</label><input type="text" id="edit-c" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Answer D *</label><input type="text" id="edit-d" class="form-input"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Correct Answer (A/B/C/D) *</label><input type="text" id="edit-correct" class="form-input" maxlength="1" style="max-width:80px"></div>
+        <div class="form-group"><label class="form-label">Rule / Concept</label><textarea id="edit-rule" class="form-input"></textarea></div>
+        <div class="form-group"><label class="form-label">Key Takeaway</label><textarea id="edit-takeaway" class="form-input"></textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitEditQuestion()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -448,24 +455,15 @@ let syncTimeout = null;
 
 // ── AUTH ──────────────────────────────────────────────────────────
 async function initAuth() {
-  // Hide app, show auth overlay while we check
   document.getElementById('auth-overlay').style.display = 'flex';
   document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
   document.getElementById('header').style.display = 'none';
-
   const { data: { session } } = await sb.auth.getSession();
-  if (session?.user) {
-    await onSignedIn(session.user);
-  } else {
-    // Show auth overlay
-    document.getElementById('auth-overlay').style.display = 'flex';
-  }
-
-  // Listen for auth changes (magic link click)
+  if (session?.user) { await onSignedIn(session.user); }
+  else { document.getElementById('auth-overlay').style.display = 'flex'; }
   sb.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session?.user) {
-      await onSignedIn(session.user);
-    } else if (event === 'SIGNED_OUT') {
+    if (event === 'SIGNED_IN' && session?.user) { await onSignedIn(session.user); }
+    else if (event === 'SIGNED_OUT') {
       currentUser = null;
       document.getElementById('auth-overlay').style.display = 'flex';
       document.getElementById('header').style.display = 'none';
@@ -503,23 +501,12 @@ async function sendMagicLink() {
   }
 }
 
-async function signOut() {
-  await sb.auth.signOut();
-}
+async function signOut() { await sb.auth.signOut(); }
 
-// ── TABLE SETUP ────────────────────────────────────────────────────
 async function ensureTable() {
-  // Try to create tables via RPC if they don't exist — we use a simple upsert approach
-  // Tables are created automatically on first upsert if using service role, but with anon key
-  // we rely on the tables already existing. We'll attempt a read and catch gracefully.
-  try {
-    await sb.from('mbe_questions').select('id').limit(1);
-  } catch(e) {
-    console.warn('Table check:', e.message);
-  }
+  try { await sb.from('mbe_questions').select('id').limit(1); } catch(e) { console.warn('Table check:', e.message); }
 }
 
-// ── SYNC INDICATOR ─────────────────────────────────────────────────
 function showSync(msg, duration = 2000) {
   const el = document.getElementById('sync-indicator');
   const txt = document.getElementById('sync-text');
@@ -535,71 +522,43 @@ function showSync(msg, duration = 2000) {
   }
 }
 
-// ── PERSIST ────────────────────────────────────────────────────────
 async function save() {
-  // Always write to localStorage as fast local cache
   localStorage.setItem('mbe_q_v3', JSON.stringify(questions));
   localStorage.setItem('mbe_comfort_v3', JSON.stringify(ruleComfort));
-
   if (!currentUser) return;
   showSync('⟳ Syncing...', 0);
   try {
-    const payload = {
-      user_id: currentUser.id,
-      questions_json: JSON.stringify(questions),
-      comfort_json: JSON.stringify(ruleComfort),
-      updated_at: new Date().toISOString()
-    };
+    const payload = { user_id: currentUser.id, questions_json: JSON.stringify(questions), comfort_json: JSON.stringify(ruleComfort), updated_at: new Date().toISOString() };
     const { error } = await sb.from('mbe_tracker_data').upsert(payload, { onConflict: 'user_id' });
     if (error) throw error;
     showSync('✓ Synced', 2000);
-  } catch(e) {
-    console.warn('Sync error:', e.message);
-    showSync('⚠ Saved locally only', 3000);
-  }
+  } catch(e) { console.warn('Sync error:', e.message); showSync('⚠ Saved locally only', 3000); }
 }
 
 async function load() {
-  // First load from localStorage for instant render
   try {
     const sq = localStorage.getItem('mbe_q_v3');
     if (sq) {
       const parsed = JSON.parse(sq);
       const map = {};
       parsed.forEach(q => map[q.num+'|'+q.topic+'|'+q.subtopic] = q);
-      questions = questions.map(q => {
-        const k = q.num+'|'+q.topic+'|'+q.subtopic;
-        return map[k] ? {...q, status:map[k].status, mastered:map[k].mastered, notes:map[k].notes} : q;
-      });
-      parsed.forEach(q => {
-        const k = q.num+'|'+q.topic+'|'+q.subtopic;
-        if (!questions.some(eq => eq.num+'|'+eq.topic+'|'+eq.subtopic===k)) questions.push(q);
-      });
+      questions = questions.map(q => { const k = q.num+'|'+q.topic+'|'+q.subtopic; return map[k] ? {...q, status:map[k].status, mastered:map[k].mastered, notes:map[k].notes} : q; });
+      parsed.forEach(q => { const k = q.num+'|'+q.topic+'|'+q.subtopic; if (!questions.some(eq => eq.num+'|'+eq.topic+'|'+eq.subtopic===k)) questions.push(q); });
     }
     const sc = localStorage.getItem('mbe_comfort_v3');
     if (sc) ruleComfort = JSON.parse(sc);
   } catch(e) { console.warn('Local load error:', e); }
-
-  // Then fetch from Supabase (cloud wins if newer)
   if (!currentUser) return;
   try {
     const { data, error } = await sb.from('mbe_tracker_data').select('questions_json,comfort_json').eq('user_id', currentUser.id).single();
-    if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
+    if (error && error.code !== 'PGRST116') throw error;
     if (data) {
       const parsed = JSON.parse(data.questions_json);
       const map = {};
       parsed.forEach(q => map[q.num+'|'+q.topic+'|'+q.subtopic] = q);
-      // Merge: cloud data wins over defaults, but keep any questions not in cloud
-      questions = questions.map(q => {
-        const k = q.num+'|'+q.topic+'|'+q.subtopic;
-        return map[k] ? {...q, ...map[k]} : q;
-      });
-      parsed.forEach(q => {
-        const k = q.num+'|'+q.topic+'|'+q.subtopic;
-        if (!questions.some(eq => eq.num+'|'+eq.topic+'|'+eq.subtopic===k)) questions.push(q);
-      });
+      questions = questions.map(q => { const k = q.num+'|'+q.topic+'|'+q.subtopic; return map[k] ? {...q, ...map[k]} : q; });
+      parsed.forEach(q => { const k = q.num+'|'+q.topic+'|'+q.subtopic; if (!questions.some(eq => eq.num+'|'+eq.topic+'|'+eq.subtopic===k)) questions.push(q); });
       if (data.comfort_json) ruleComfort = JSON.parse(data.comfort_json);
-      // Update local cache with cloud data
       localStorage.setItem('mbe_q_v3', JSON.stringify(questions));
       localStorage.setItem('mbe_comfort_v3', JSON.stringify(ruleComfort));
     }
@@ -609,13 +568,7 @@ async function load() {
 // ── HELPERS ────────────────────────────────────────────────────────
 function ruleKey(q) { return (q.topic+'|'+q.subtopic+'|'+(q.rule||'').slice(0,40)).replace(/\s/g,'_'); }
 function getStats() {
-  return {
-    total: questions.length,
-    mastered: questions.filter(q=>q.mastered==='Yes').length,
-    reviewed: questions.filter(q=>q.status==='Reviewed').length,
-    practice: questions.filter(q=>q.status==='More Practice Needed').length,
-    notStarted: questions.filter(q=>q.status==='Not Started').length
-  };
+  return { total: questions.length, mastered: questions.filter(q=>q.mastered==='Yes').length, reviewed: questions.filter(q=>q.status==='Reviewed').length, practice: questions.filter(q=>q.status==='More Practice Needed').length, notStarted: questions.filter(q=>q.status==='Not Started').length };
 }
 function getTopicSubtopicMap() {
   const m={};
@@ -721,6 +674,7 @@ function renderQuestionLog() {
       '<div class="qcard-controls">'+
       '<select class="status-select" onchange="updateStatus('+idx+',this.value)">'+STATUSES.map(s=>'<option value="'+s+'"'+(q.status===s?' selected':'')+'>'+s+'</option>').join('')+'</select>'+
       '<button class="mastered-toggle '+(q.mastered==='Yes'?'active':'')+'" onclick="toggleMastered('+idx+')">'+(q.mastered==='Yes'?'✅':'⬜')+' Mastered</button>'+
+      '<button class="btn btn-sm btn-ghost" onclick="openEditModal('+idx+')">✏️ Edit</button>'+
       '<button class="btn btn-sm btn-danger" style="margin-left:auto" onclick="deleteQuestion('+idx+')">Delete</button>'+
       '</div></div></div>';
   }).join('');
@@ -791,11 +745,7 @@ let rulesFilter={topic:'',comfort:''};
 let rfcQueue=[], rfcIdx=0, rfcShown=false;
 function getUniqueRules() {
   const seen=new Set(), rules=[];
-  questions.forEach(q=>{
-    if(!q.rule||!q.rule.trim())return;
-    const k=ruleKey(q);
-    if(!seen.has(k)){seen.add(k);rules.push({...q,_rkey:k});}
-  });
+  questions.forEach(q=>{ if(!q.rule||!q.rule.trim())return; const k=ruleKey(q); if(!seen.has(k)){seen.add(k);rules.push({...q,_rkey:k});} });
   return rules;
 }
 function getComfortLabel(key){return ruleComfort[key]||'new';}
@@ -851,46 +801,26 @@ function renderRulesPage() {
     '<div class="rule-main">'+(displayRules.length===0?'<div class="empty-state"><h3>No rules match</h3></div>':ruleCards)+'</div></div>';
 }
 function setRulesFilter(key,val){rulesFilter[key]=val;renderRulesPage();}
-function setComfort(key,level){
-  ruleComfort[key]=level; save(); renderRulesPage();
-  toast(level==='strong'?'💪 Strong!':level==='weak'?'⚠️ Flagged':'👍 OK');
-}
+function setComfort(key,level){ ruleComfort[key]=level; save(); renderRulesPage(); toast(level==='strong'?'💪 Strong!':level==='weak'?'⚠️ Flagged':'👍 OK'); }
 function startRuleFlashcards(filterKey) {
   const allRules=getUniqueRules();
   let pool;
-  if(filterKey==='all'){
-    pool=allRules.filter(r=>{const c=getComfortLabel(r._rkey);return c==='weak'||c==='new';});
-    if(!pool.length)pool=allRules;
-  } else {
-    pool=[allRules.find(r=>r._rkey===filterKey)].filter(Boolean);
-    if(!pool.length)pool=allRules;
-  }
+  if(filterKey==='all'){ pool=allRules.filter(r=>{const c=getComfortLabel(r._rkey);return c==='weak'||c==='new';}); if(!pool.length)pool=allRules; }
+  else { pool=[allRules.find(r=>r._rkey===filterKey)].filter(Boolean); if(!pool.length)pool=allRules; }
   rfcQueue=pool.slice().sort(()=>Math.random()-0.5);
   rfcIdx=0; rfcShown=false;
   showRuleFC();
 }
 function showRuleFC(){
   let overlay=document.getElementById('rfc-overlay');
-  if(!overlay){
-    overlay=document.createElement('div');
-    overlay.id='rfc-overlay';
-    overlay.style.cssText='position:fixed;inset:0;background:rgba(15,30,53,0.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px';
-    overlay.onclick=function(e){if(e.target===overlay)closeRFC();};
-    document.body.appendChild(overlay);
-  }
+  if(!overlay){ overlay=document.createElement('div'); overlay.id='rfc-overlay'; overlay.style.cssText='position:fixed;inset:0;background:rgba(15,30,53,0.85);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px'; overlay.onclick=function(e){if(e.target===overlay)closeRFC();}; document.body.appendChild(overlay); }
   renderRuleFC();
 }
 function renderRuleFC(){
   const overlay=document.getElementById('rfc-overlay');
   if(!overlay)return;
   if(rfcIdx>=rfcQueue.length){
-    overlay.innerHTML='<div class="rule-fc-card" style="max-width:600px;padding:50px 40px;text-align:center;background:var(--white);border-radius:var(--radius-lg)">'+
-      '<div class="fc-score" style="font-size:48px">✓</div>'+
-      '<h2 style="font-family:\'Playfair Display\',serif;font-size:24px;color:var(--navy);margin:16px 0 8px">Done!</h2>'+
-      '<p style="color:var(--ink-soft);margin-bottom:24px">Reviewed '+rfcQueue.length+' rule'+(rfcQueue.length!==1?'s':'')+'.</p>'+
-      '<div style="display:flex;gap:12px;justify-content:center">'+
-      '<button class="btn btn-primary" onclick="startRuleFlashcards(\'all\')">Again</button>'+
-      '<button class="btn btn-ghost" onclick="closeRFC()">Done</button></div></div>';
+    overlay.innerHTML='<div class="rule-fc-card" style="max-width:600px;padding:50px 40px;text-align:center;background:var(--white);border-radius:var(--radius-lg)"><div class="fc-score" style="font-size:48px">✓</div><h2 style="font-family:\'Playfair Display\',serif;font-size:24px;color:var(--navy);margin:16px 0 8px">Done!</h2><p style="color:var(--ink-soft);margin-bottom:24px">Reviewed '+rfcQueue.length+' rule'+(rfcQueue.length!==1?'s':'')+'.</p><div style="display:flex;gap:12px;justify-content:center"><button class="btn btn-primary" onclick="startRuleFlashcards(\'all\')">Again</button><button class="btn btn-ghost" onclick="closeRFC()">Done</button></div></div>';
     return;
   }
   const q=rfcQueue[rfcIdx], k=q._rkey, comfort=getComfortLabel(k);
@@ -923,65 +853,45 @@ function setComfortRFC(key,level){ruleComfort[key]=level;save();renderRuleFC();}
 let pendingImport = [];
 
 function renderUploadPage() {
-  const tsm = getTopicSubtopicMap();
-  const topicOpts = Object.keys(tsm).sort().map(t=>'<option value="'+t+'">'+t+'</option>').join('');
   document.getElementById('page-upload').innerHTML =
     '<div style="max-width:800px;margin:0 auto">'+
-
-    // ── Tab switcher ─────────────────────────────────────────────
     '<div class="upload-tabs" style="margin-bottom:24px">'+
     '<button class="upload-tab active" id="utab-adaptibar" onclick="switchUploadTab(\'adaptibar\')">📄 AdaptiBar PDF</button>'+
     '<button class="upload-tab" id="utab-screenshot" onclick="switchUploadTab(\'screenshot\')">📋 Paste Question</button>'+
     '</div>'+
-
-    // ── AdaptiBar panel ──────────────────────────────────────────
     '<div class="upload-panel active" id="upanel-adaptibar">'+
     '<div class="card" style="margin-bottom:24px">'+
     '<div class="card-header"><span class="icon">📥</span><h2>Import from AdaptiBar</h2></div>'+
     '<div class="card-body">'+
     '<p style="color:var(--ink-soft);font-size:13px;margin-bottom:16px">Upload your <strong>AdaptiBar Past Questions Report</strong> as a PDF or ZIP file. Duplicates are automatically skipped.</p>'+
     '<div class="upload-zone" id="upload-zone" onclick="document.getElementById(\'pdf-input\').click()" ondragover="event.preventDefault();this.classList.add(\'drag-over\')" ondragleave="this.classList.remove(\'drag-over\')" ondrop="handleDrop(event)">'+
-    '<div class="upload-icon">📄</div>'+
-    '<h3>Drop PDF or ZIP here</h3>'+
-    '<p>AdaptiBar Past Questions Report</p>'+
+    '<div class="upload-icon">📄</div><h3>Drop PDF or ZIP here</h3><p>AdaptiBar Past Questions Report</p>'+
     '<input type="file" id="pdf-input" accept=".pdf,.zip" style="display:none" onchange="handleFileSelect(event)">'+
     '<button class="btn btn-primary" style="pointer-events:none;margin-top:10px">Choose File</button>'+
     '</div>'+
-    '<label class="wrong-toggle">'+
-    '<input type="checkbox" id="wrong-only" checked>'+
-    '<div><strong>Wrong answers only</strong><div style="font-size:12px;color:var(--ink-soft)">Skip questions you answered correctly</div></div>'+
-    '</label>'+
+    '<label class="wrong-toggle"><input type="checkbox" id="wrong-only" checked>'+
+    '<div><strong>Wrong answers only</strong><div style="font-size:12px;color:var(--ink-soft)">Skip questions you answered correctly</div></div></label>'+
     '<div class="parse-steps" id="parse-steps">'+
     '<div class="parse-step" id="step-1"><span class="step-dot"></span> Reading file</div>'+
     '<div class="parse-step" id="step-2"><span class="step-dot"></span> Parsing questions</div>'+
     '<div class="parse-step" id="step-3"><span class="step-dot"></span> Checking duplicates</div>'+
     '<div class="parse-step" id="step-4"><span class="step-dot"></span> Ready to import</div>'+
-    '</div>'+
-    '</div></div>'+
-    '<div id="import-preview"></div>'+
-    '</div>'+
-
-    // ── Screenshot panel ─────────────────────────────────────────
+    '</div></div></div>'+
+    '<div id="import-preview"></div></div>'+
     '<div class="upload-panel" id="upanel-screenshot">'+
     '<div class="card" style="margin-bottom:24px">'+
     '<div class="card-header"><span class="icon">📋</span><h2>Paste Question Text</h2></div>'+
     '<div class="card-body">'+
-    '<p style="color:var(--ink-soft);font-size:13px;margin-bottom:4px">Select all the text on a BARBRI or AdaptiBar question page, copy it, then paste below. The tracker will parse out the question, choices, answer, and explanation automatically.</p>'+
+    '<p style="color:var(--ink-soft);font-size:13px;margin-bottom:4px">Select all the text on a BARBRI or AdaptiBar question page, copy it, then paste below.</p>'+
     '<p style="color:var(--ink-soft);font-size:12px;margin-bottom:16px">Works with BARBRI LMS, AdaptiBar, Themis, and most other MBE platforms.</p>'+
     '<textarea id="ss-text-input" class="form-input" style="min-height:180px;font-size:12px;font-family:\'IBM Plex Mono\',monospace" placeholder="Paste question text here (Ctrl+V / ⌘V)..." oninput="onSSTextInput(this.value)"></textarea>'+
     '<div id="ss-parse-status" style="margin-top:10px;font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:var(--ink-soft)"></div>'+
     '</div></div>'+
-    '<div id="ss-preview"></div>'+
-    '</div>'+
-
-    // ── Export ───────────────────────────────────────────────────
-    '<div class="card">'+
-    '<div class="card-header"><span class="icon">💾</span><h2>Export</h2></div>'+
-    '<div class="card-body">'+
-    '<p style="color:var(--ink-soft);font-size:13px;margin-bottom:16px">Download all questions as JSON for backup or to import on another device.</p>'+
+    '<div id="ss-preview"></div></div>'+
+    '<div class="card"><div class="card-header"><span class="icon">💾</span><h2>Export</h2></div>'+
+    '<div class="card-body"><p style="color:var(--ink-soft);font-size:13px;margin-bottom:16px">Download all questions as JSON for backup or to import on another device.</p>'+
     '<button class="btn btn-gold" onclick="exportJSON()">⬇ Download questions.json</button>'+
-    '</div></div>'+
-    '</div>';
+    '</div></div></div>';
 }
 
 function switchUploadTab(tab) {
@@ -991,163 +901,90 @@ function switchUploadTab(tab) {
   document.getElementById('upanel-' + tab).classList.add('active');
 }
 
-function setStep(n, state) {
-  const el = document.getElementById('step-'+n);
-  if(el) el.className = 'parse-step' + (state?' '+state:'');
-}
-
-function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('upload-zone').classList.remove('drag-over');
-  const f = e.dataTransfer.files[0];
-  if(f) processFile(f);
-}
-function handleFileSelect(e) {
-  const f = e.target.files[0];
-  if(f) processFile(f);
-}
-
+function setStep(n, state) { const el = document.getElementById('step-'+n); if(el) el.className = 'parse-step' + (state?' '+state:''); }
+function handleDrop(e) { e.preventDefault(); document.getElementById('upload-zone').classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if(f) processFile(f); }
+function handleFileSelect(e) { const f = e.target.files[0]; if(f) processFile(f); }
 
 async function processFile(file) {
   const steps = document.getElementById('parse-steps');
   steps.classList.add('show');
   setStep(1,'running'); setStep(2,''); setStep(3,''); setStep(4,'');
-
   try {
     const ext = file.name.split('.').pop().toLowerCase();
     const arrayBuffer = await file.arrayBuffer();
     let pdfBytes = new Uint8Array(arrayBuffer);
-
-    if(ext === 'zip') {
-      const extracted = extractPDFFromZip(pdfBytes);
-      if(!extracted) { toast('No PDF found inside ZIP'); steps.classList.remove('show'); return; }
-      pdfBytes = extracted;
-    }
-
+    if(ext === 'zip') { const extracted = extractPDFFromZip(pdfBytes); if(!extracted) { toast('No PDF found inside ZIP'); steps.classList.remove('show'); return; } pdfBytes = extracted; }
     setStep(1,'done'); setStep(2,'running');
     const text = await extractPDFText(pdfBytes);
-    if(!text || text.length < 200) {
-      toast('Could not read this PDF. Make sure it is an AdaptiBar Past Questions Report.');
-      steps.classList.remove('show'); return;
-    }
-
+    if(!text || text.length < 200) { toast('Could not read this PDF. Make sure it is an AdaptiBar Past Questions Report.'); steps.classList.remove('show'); return; }
     setStep(2,'done'); setStep(3,'running');
     const wrongOnly = document.getElementById('wrong-only').checked;
     const parsed = parseAdaptibar(text, wrongOnly);
-    if(!parsed.length) {
-      toast('No ' + (wrongOnly ? 'wrong ' : '') + 'questions found in this report.');
-      steps.classList.remove('show'); return;
-    }
-
+    if(!parsed.length) { toast('No ' + (wrongOnly ? 'wrong ' : '') + 'questions found in this report.'); steps.classList.remove('show'); return; }
     const existingKeys = new Set(questions.map(q => q.num+'|'+q.topic+'|'+q.subtopic));
     pendingImport = parsed.map(q => ({...q, _isNew: !existingKeys.has(q.num+'|'+q.topic+'|'+q.subtopic)}));
     setStep(3,'done'); setStep(4,'done');
     setTimeout(showImportPreview, 200);
-
-  } catch(err) {
-    console.error('processFile error:', err);
-    toast('Error: ' + err.message);
-    steps.classList.remove('show');
-  }
+  } catch(err) { console.error('processFile error:', err); toast('Error: ' + err.message); steps.classList.remove('show'); }
 }
 
 async function extractPDFText(pdfBytes) {
-  // Find all stream data chunks in the PDF bytes
-  // AdaptiBar PDFs use FlateDecode (zlib) compressed streams
-  const streamDelim = [115,116,114,101,97,109]; // "stream"
-  const endDelim = [101,110,100,115,116,114,101,97,109]; // "endstream"
-  
+  const streamDelim = [115,116,114,101,97,109];
+  const endDelim = [101,110,100,115,116,114,101,97,109];
   const streams = [];
   let pos = 0;
-  
   while(pos < pdfBytes.length - 10) {
-    // Find "stream"
     let found = false;
     for(let i = pos; i < pdfBytes.length - streamDelim.length; i++) {
       let match = true;
-      for(let j = 0; j < streamDelim.length; j++) {
-        if(pdfBytes[i+j] !== streamDelim[j]) { match = false; break; }
-      }
+      for(let j = 0; j < streamDelim.length; j++) { if(pdfBytes[i+j] !== streamDelim[j]) { match = false; break; } }
       if(match) {
-        // Skip \r\n or \n after "stream"
         let dataStart = i + streamDelim.length;
         if(pdfBytes[dataStart] === 13 && pdfBytes[dataStart+1] === 10) dataStart += 2;
         else if(pdfBytes[dataStart] === 10) dataStart += 1;
         else { pos = i + 1; found = true; break; }
-        
-        // Find "endstream"
         let dataEnd = -1;
         for(let k = dataStart; k < pdfBytes.length - endDelim.length; k++) {
           let ematch = true;
-          for(let m = 0; m < endDelim.length; m++) {
-            if(pdfBytes[k+m] !== endDelim[m]) { ematch = false; break; }
-          }
+          for(let m = 0; m < endDelim.length; m++) { if(pdfBytes[k+m] !== endDelim[m]) { ematch = false; break; } }
           if(ematch) { dataEnd = k; break; }
         }
         if(dataEnd === -1) { pos = i + 1; found = true; break; }
-        
-        // Trim trailing \r\n before endstream
         let end = dataEnd;
         if(pdfBytes[end-1] === 10) end--;
         if(end > 0 && pdfBytes[end-1] === 13) end--;
-        
         streams.push(pdfBytes.slice(dataStart, end));
         pos = dataEnd + endDelim.length;
-        found = true;
-        break;
+        found = true; break;
       }
     }
     if(!found) break;
   }
-  
-  // Decompress each stream using DecompressionStream API
   let fullText = '';
-  
   for(const streamData of streams) {
     if(streamData.length < 4) continue;
-    // Check for zlib header (0x78 0x9C or 0x78 0xDA or 0x78 0x01)
     if(streamData[0] !== 0x78) continue;
-    
     try {
-      // Use 'deflate' mode which handles zlib wrapper (not deflate-raw)
       const ds = new DecompressionStream('deflate');
       const writer = ds.writable.getWriter();
       const reader = ds.readable.getReader();
-      
-      writer.write(streamData);
-      writer.close();
-      
+      writer.write(streamData); writer.close();
       const chunks = [];
-      while(true) {
-        const {done, value} = await reader.read();
-        if(done) break;
-        chunks.push(value);
-      }
-      
-      // Decode as latin-1
+      while(true) { const {done, value} = await reader.read(); if(done) break; chunks.push(value); }
       const totalLen = chunks.reduce((s,c) => s+c.length, 0);
       const combined = new Uint8Array(totalLen);
       let offset = 0;
       for(const chunk of chunks) { combined.set(chunk, offset); offset += chunk.length; }
-      
-      // Convert to string preserving latin-1 chars
       let decoded = '';
       for(let i = 0; i < combined.length; i++) decoded += String.fromCharCode(combined[i]);
-      
-      // Only process streams that contain text operators
       if(!decoded.includes('BT') || !decoded.includes('Tj')) continue;
-      
-      // Extract text from BT...ET blocks
       const btRe = /BT([\s\S]+?)ET/g;
       let btMatch;
       while((btMatch = btRe.exec(decoded)) !== null) {
         const block = btMatch[1];
-        // Parse PDF string literals: (content)Tj
-        // Handle nested parens and escape sequences
         let i = 0;
         while(i < block.length) {
           if(block[i] === '(') {
-            // Find matching close paren
             let j = i + 1, depth = 1;
             while(j < block.length && depth > 0) {
               if(block[j] === '\\' && j+1 < block.length) j += 2;
@@ -1156,32 +993,18 @@ async function extractPDFText(pdfBytes) {
               else j++;
             }
             const content = block.substring(i+1, j-1);
-            // Check if followed by Tj (possibly with whitespace)
             const rest = block.substring(j).trimStart();
             if(rest.startsWith('Tj')) {
-              // Unescape PDF escapes
-              let s = content
-                .replace(/\xa0/g, ' ')
-                .replace(/\\n/g, '\n')
-                .replace(/\\r/g, '\r')
-                .replace(/\\\(/g, '(')
-                .replace(/\\\)/g, ')')
-                .replace(/\\\\/g, '\\');
+              let s = content.replace(/\xa0/g, ' ').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\\(/g, '(').replace(/\\\)/g, ')').replace(/\\\\/g, '\\');
               if(s.trim()) fullText += s;
             }
             i = j;
-          } else {
-            i++;
-          }
+          } else { i++; }
         }
         fullText += '\n';
       }
-      
-    } catch(e) {
-      // Stream decompression failed, skip
-    }
+    } catch(e) {}
   }
-  
   return fullText;
 }
 
@@ -1205,70 +1028,34 @@ function extractPDFFromZip(bytes) {
 function parseAdaptibar(text, wrongOnly) {
   const questions = [];
   const blocks = text.split(/(?=Question\s*#\d+\s*[-\u2013])/);
-
   for(const block of blocks) {
     if(!/Question\s*#\d+/.test(block)) continue;
-
-    // Header - stop at "Date Answered" since no newline separator in extracted text
     const hm = block.match(/Question\s*#(\d+)\s*[-\u2013]\s*(.+?)\s*\/\s*(.+?)(?:\s*\(Simulated\))?\s*(?=Date Answered)/);
     if(!hm) continue;
     const num = hm[1], topic = hm[2].trim(), subtopic = hm[3].trim();
-
-    // Result line
     const am = block.match(/You\s+(correctly answered|answered)\s+([A-D])\.?(?:\s+The correct answer is\s+([A-D]))?/);
     if(!am) continue;
     const gotRight = am[1] === 'correctly answered';
     const correct = am[3] || am[2];
     if(wrongOnly && gotRight) continue;
-
-    // Question text: between "Question" (the section label) and first answer choice
-    // Text runs together without newlines e.g. "...is B?QuestionA tenant..."
     const qm = block.match(/Question([A-Z][\s\S]+?)(?=\s*A[:.]\s)/);
     if(!qm) continue;
-    let qText = qm[1].trim()
-      .replace(/(\w)-\n(\w)/g, '$1$2')
-      .replace(/ {2,}/g, ' ');
-
-    // Choices - handle both "A: text" and "A) text", no newlines between
+    let qText = qm[1].trim().replace(/(\w)-\n(\w)/g, '$1$2').replace(/ {2,}/g, ' ');
     const choices = {};
     for(const L of ['A','B','C','D']) {
-      const cm = block.match(
-        new RegExp('(?<![A-Za-z])' + L + '[):.:]\\s*([\\s\\S]+?)(?=\\s*(?:[A-D][):.:]\\s|Brief Explanation|(?<![a-z])Explanation(?=[A-Z\\n])|$))')
-      );
-      if(cm) {
-        let ct = cm[1].trim()
-          .replace(/©[\s\S]+/, '')
-          .replace(/\n\d+\s*$/, '')
-          .replace(/(\w)-\n(\w)/g, '$1$2')
-          .replace(/\n/g, ' ')
-          .trim();
-        if(ct) choices[L] = ct;
-      }
+      const cm = block.match(new RegExp('(?<![A-Za-z])' + L + '[):.:]\\s*([\\s\\S]+?)(?=\\s*(?:[A-D][):.:]\\s|Brief Explanation|(?<![a-z])Explanation(?=[A-Z\\n])|$))'));
+      if(cm) { let ct = cm[1].trim().replace(/©[\s\S]+/, '').replace(/\n\d+\s*$/, '').replace(/(\w)-\n(\w)/g, '$1$2').replace(/\n/g, ' ').trim(); if(ct) choices[L] = ct; }
     }
     if(Object.keys(choices).length < 2) continue;
     const choicesStr = Object.entries(choices).sort().map(([l,t]) => l + ')  ' + t).join('\n\n');
-
-    // Explanation - handle with or without newlines
     let explanation = '';
     const em = block.match(/(?:Brief Explanation|(?<![a-z])Explanation(?=[A-Z]))(.+?)(?=Extended Explanation|©|$)/s);
-    if(em) {
-      explanation = em[1]
-        .replace(/©[\s\S]+/, '')
-        .replace(/\n\d+\s*$/, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-    }
-
+    if(em) { explanation = em[1].replace(/©[\s\S]+/, '').replace(/\n\d+\s*$/, '').replace(/\s+/g, ' ').trim(); }
     const rule = explanation.slice(0, 500);
     let takeaway = '';
     const tm = explanation.match(new RegExp(correct + '\\s+is correct[.\\s]+(.+?)(?=[A-D]\\s+is incorrect|[A-D]\\s+is correct|$)'));
     takeaway = tm ? tm[1].trim().slice(0, 350) : explanation.slice(0, 300);
-
-    questions.push({
-      num, topic, subtopic, question: qText,
-      choices: choicesStr, correct, rule, takeaway,
-      notes: '', status: 'Not Started', mastered: 'No'
-    });
+    questions.push({ num, topic, subtopic, question: qText, choices: choicesStr, correct, rule, takeaway, notes: '', status: 'Not Started', mastered: 'No' });
   }
   return questions;
 }
@@ -1276,46 +1063,23 @@ function parseAdaptibar(text, wrongOnly) {
 function showImportPreview() {
   const newQs = pendingImport.filter(q=>q._isNew);
   const dupQs = pendingImport.filter(q=>!q._isNew);
-  const rows = pendingImport.map(q=>
-    '<div class="import-row '+(q._isNew?'':'duplicate')+'">'+
-    '<span class="import-badge '+(q._isNew?'badge-new':'badge-dup')+'">'+(q._isNew?'NEW':'SKIP')+'</span>'+
-    '<div class="import-info">'+
-    '<div class="import-topic">'+q.topic+' · '+q.subtopic+(q.num&&q.num!='N/A'?' · #'+q.num:'')+'</div>'+
-    '<div class="import-q">'+(q.question||'').slice(0,90)+((q.question||'').length>90?'…':'')+'</div>'+
-    '</div></div>'
-  ).join('');
+  const rows = pendingImport.map(q=>'<div class="import-row '+(q._isNew?'':'duplicate')+'"><span class="import-badge '+(q._isNew?'badge-new':'badge-dup')+'">'+(q._isNew?'NEW':'SKIP')+'</span><div class="import-info"><div class="import-topic">'+q.topic+' · '+q.subtopic+(q.num&&q.num!='N/A'?' · #'+q.num:'')+'</div><div class="import-q">'+(q.question||'').slice(0,90)+((q.question||'').length>90?'…':'')+'</div></div></div>').join('');
   document.getElementById('import-preview').innerHTML =
     '<div class="upload-preview" style="margin-top:24px;margin-bottom:24px">'+
-    '<div class="upload-preview-header">'+
-    '<h3 style="color:var(--white)">'+pendingImport.length+' questions found</h3>'+
-    '<div style="display:flex;gap:10px">'+
-    (newQs.length?'<button class="btn btn-gold btn-sm" onclick="confirmImport()">Import '+newQs.length+' New</button>':'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:rgba(255,255,255,0.6)">All already logged</span>')+
-    '<button class="btn btn-ghost btn-sm" onclick="cancelImport()">Cancel</button>'+
-    '</div></div>'+
-    '<div class="import-summary-bar">'+
-    '<div class="import-summary-stat"><div class="import-summary-num">'+newQs.length+'</div><div class="import-summary-label">New</div></div>'+
-    '<div class="import-summary-stat"><div class="import-summary-num">'+dupQs.length+'</div><div class="import-summary-label">Already Logged</div></div>'+
-    '<div class="import-summary-stat"><div class="import-summary-num">'+pendingImport.length+'</div><div class="import-summary-label">Total</div></div>'+
-    '</div>'+rows+'</div>';
+    '<div class="upload-preview-header"><h3 style="color:var(--white)">'+pendingImport.length+' questions found</h3>'+
+    '<div style="display:flex;gap:10px">'+(newQs.length?'<button class="btn btn-gold btn-sm" onclick="confirmImport()">Import '+newQs.length+' New</button>':'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:rgba(255,255,255,0.6)">All already logged</span>')+'<button class="btn btn-ghost btn-sm" onclick="cancelImport()">Cancel</button></div></div>'+
+    '<div class="import-summary-bar"><div class="import-summary-stat"><div class="import-summary-num">'+newQs.length+'</div><div class="import-summary-label">New</div></div><div class="import-summary-stat"><div class="import-summary-num">'+dupQs.length+'</div><div class="import-summary-label">Already Logged</div></div><div class="import-summary-stat"><div class="import-summary-num">'+pendingImport.length+'</div><div class="import-summary-label">Total</div></div></div>'+
+    rows+'</div>';
   document.getElementById('parse-steps').classList.remove('show');
 }
 
-function cancelImport() {
-  pendingImport = [];
-  document.getElementById('import-preview').innerHTML = '';
-  document.getElementById('parse-steps').classList.remove('show');
-}
+function cancelImport() { pendingImport = []; document.getElementById('import-preview').innerHTML = ''; document.getElementById('parse-steps').classList.remove('show'); }
 
 function confirmImport() {
   const toAdd = pendingImport.filter(q=>q._isNew).map(({_isNew,...q})=>({...q,num:q.num||'N/A',status:'Not Started',mastered:'No',notes:q.notes||''}));
   questions.push(...toAdd);
   save();
-  document.getElementById('import-preview').innerHTML =
-    '<div class="card" style="margin-top:24px"><div class="card-body" style="text-align:center;padding:36px">'+
-    '<div style="font-size:40px;margin-bottom:12px">✅</div>'+
-    '<h3 style="font-family:\'Playfair Display\',serif;color:var(--navy);font-size:20px">'+toAdd.length+' question'+(toAdd.length!==1?'s':'')+' added</h3>'+
-    '<p style="color:var(--ink-soft);margin-top:8px">Head to the Question Log to review them.</p>'+
-    '</div></div>';
+  document.getElementById('import-preview').innerHTML = '<div class="card" style="margin-top:24px"><div class="card-body" style="text-align:center;padding:36px"><div style="font-size:40px;margin-bottom:12px">✅</div><h3 style="font-family:\'Playfair Display\',serif;color:var(--navy);font-size:20px">'+toAdd.length+' question'+(toAdd.length!==1?'s':'')+' added</h3><p style="color:var(--ink-soft);margin-top:8px">Head to the Question Log to review them.</p></div></div>';
   pendingImport = [];
   renderDashboard();
   toast('✅ ' + toAdd.length + ' questions imported!');
@@ -1362,6 +1126,60 @@ function submitAddQuestion(){
   save(); closeAddModal(); renderQuestionLog(); renderDashboard(); toast('Question added!');
 }
 
+// ── EDIT MODAL ─────────────────────────────────────────────────────
+let editingIdx = -1;
+
+function openEditModal(idx) {
+  editingIdx = idx;
+  const q = questions[idx];
+  const parseChoiceText = (choices, letter) => {
+    const lines = (choices || '').split('\n');
+    const line = lines.find(l => l.trim().startsWith(letter + ')'));
+    return line ? line.replace(/^[A-D]\)\s+/, '').trim() : '';
+  };
+  document.getElementById('edit-topic').value = q.topic || '';
+  document.getElementById('edit-subtopic').value = q.subtopic || '';
+  document.getElementById('edit-question').value = q.question || '';
+  document.getElementById('edit-a').value = parseChoiceText(q.choices, 'A');
+  document.getElementById('edit-b').value = parseChoiceText(q.choices, 'B');
+  document.getElementById('edit-c').value = parseChoiceText(q.choices, 'C');
+  document.getElementById('edit-d').value = parseChoiceText(q.choices, 'D');
+  document.getElementById('edit-correct').value = q.correct || '';
+  document.getElementById('edit-rule').value = q.rule || '';
+  document.getElementById('edit-takeaway').value = q.takeaway || '';
+  document.getElementById('edit-modal-overlay').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal-overlay').classList.remove('open');
+  document.getElementById('edit-form').reset();
+  editingIdx = -1;
+}
+
+function submitEditQuestion() {
+  if(editingIdx < 0) return;
+  const g = id => document.getElementById(id).value.trim();
+  const topic = g('edit-topic'), sub = g('edit-subtopic'), q = g('edit-question');
+  const a = g('edit-a'), b = g('edit-b'), c = g('edit-c'), d = g('edit-d');
+  const correct = g('edit-correct').toUpperCase();
+  const rule = g('edit-rule'), takeaway = g('edit-takeaway');
+  if(!topic||!sub||!q||!a||!b||!c||!d||!correct){toast('Fill in all required fields');return;}
+  if(!['A','B','C','D'].includes(correct)){toast('Correct answer must be A, B, C, or D');return;}
+  const existing = questions[editingIdx];
+  questions[editingIdx] = {
+    ...existing,
+    topic, subtopic: sub, question: q,
+    choices: 'A)  '+a+'\n\nB)  '+b+'\n\nC)  '+c+'\n\nD)  '+d,
+    correct, rule, takeaway
+  };
+  save();
+  closeEditModal();
+  openCards.delete(editingIdx);
+  renderQuestionLog();
+  renderDashboard();
+  toast('✅ Question updated!');
+}
+
 // ── NAV ────────────────────────────────────────────────────────────
 function switchPage(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1376,10 +1194,8 @@ function switchPage(page){
   else if(page==='upload')renderUploadPage();
 }
 
-// ── INIT ────────────────────────────────────────────────────────────
 // ── INIT ───────────────────────────────────────────────────────────
 initAuth();
-
 
 // ── PASTE QUESTION TEXT IMPORT ─────────────────────────────────────
 let ssPendingImport = [];
@@ -1397,219 +1213,106 @@ function parseAndPreviewText(text) {
   const statusEl = document.getElementById('ss-parse-status');
   const previewEl = document.getElementById('ss-preview');
   ssPendingImport = [];
-
   try {
     const q = parseQuestionText(text);
     if(!q) {
-      // Show diagnostic to help debug
       const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
       const isBarbri = /\bResponses\b/i.test(text) || /this is the correct answer/i.test(text);
       const bulletLines = lines.filter(l => /^\*/.test(l) || /^[A-D]\s*$/.test(l));
       const choiceLines = lines.filter(l => /^\*\s*[A-D]\s*$/.test(l));
       statusEl.textContent = '⚠ Could not parse — see details below';
-      previewEl.innerHTML = `
-        <div style="background:var(--cream);border-radius:var(--radius);padding:16px;margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.8">
-          <div style="font-weight:600;margin-bottom:8px;color:var(--navy)">Parser diagnostic:</div>
-          <div>Lines total: <b>${lines.length}</b></div>
-          <div>BARBRI format detected: <b>${isBarbri}</b></div>
-          <div>Lines starting with *: <b>${bulletLines.length}</b> → ${bulletLines.slice(0,4).map(l=>'<code>"'+l.slice(0,40)+'"</code>').join(', ')||'none'}</div>
-          <div>Choice bullet lines (e.g. "* A"): <b>${choiceLines.length}</b></div>
-          <div style="margin-top:8px;color:var(--ink-soft)">First 8 non-empty lines:</div>
-          ${lines.slice(0,8).map((l,i)=>`<div style="color:var(--ink-mid)">${i}: <code>"${l.slice(0,80).replace(/</g,'&lt;')}"</code> <span style="color:var(--ink-soft)">(${l.length} chars)</span></div>`).join('')}
-        </div>`;
+      previewEl.innerHTML = `<div style="background:var(--cream);border-radius:var(--radius);padding:16px;margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.8"><div style="font-weight:600;margin-bottom:8px;color:var(--navy)">Parser diagnostic:</div><div>Lines total: <b>${lines.length}</b></div><div>BARBRI format detected: <b>${isBarbri}</b></div><div>Lines starting with *: <b>${bulletLines.length}</b></div><div>Choice bullet lines: <b>${choiceLines.length}</b></div><div style="margin-top:8px;color:var(--ink-soft)">First 8 non-empty lines:</div>${lines.slice(0,8).map((l,i)=>`<div style="color:var(--ink-mid)">${i}: <code>"${l.slice(0,80).replace(/</g,'&lt;')}"</code></div>`).join('')}</div>`;
       return;
     }
-
     const existingKeys = new Set(questions.map(q => q.num+'|'+q.topic+'|'+q.subtopic));
     const isNew = !existingKeys.has((q.num||'N/A')+'|'+q.topic+'|'+q.subtopic);
     ssPendingImport = [{...q, _isNew: isNew}];
-
     statusEl.textContent = isNew ? '✓ Question parsed — review below' : '⚠ This question may already be in your log';
-
     previewEl.innerHTML =
       `<div class="upload-preview" style="margin-top:16px">
         <div class="upload-preview-header">
           <h3 style="color:var(--white)">1 question parsed</h3>
           <div style="display:flex;gap:10px">
-            ${isNew
-              ? `<button class="btn btn-gold btn-sm" onclick="confirmSSImport()">Add to Log</button>`
-              : `<button class="btn btn-gold btn-sm" onclick="confirmSSImport()">Add Anyway</button>`}
+            ${isNew ? `<button class="btn btn-gold btn-sm" onclick="confirmSSImport()">Add to Log</button>` : `<button class="btn btn-gold btn-sm" onclick="confirmSSImport()">Add Anyway</button>`}
             <button class="btn btn-ghost btn-sm" onclick="cancelSSImport()">Clear</button>
           </div>
         </div>
         <div style="padding:16px 20px;display:flex;flex-direction:column;gap:10px">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft)">${q.topic} · ${q.subtopic}</div>
           <div style="font-size:13px;color:var(--ink);line-height:1.6">${(q.question||'').slice(0,200)}${q.question.length>200?'…':''}</div>
-          <div style="display:flex;gap:12px;flex-wrap:wrap">
-            ${['A','B','C','D'].map(l => {
-              const line = (q.choices||'').split('\n').find(r=>r.trim().startsWith(l+')'));
-              if(!line) return '';
-              const isCor = q.correct === l;
-              return `<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 10px;border-radius:10px;background:${isCor?'var(--green-pale)':'var(--cream-dark)'};color:${isCor?'var(--green)':'var(--ink-soft)'}${isCor?';font-weight:700':''}">✓ ${l}</span>`;
-            }).filter(Boolean).join('')}
-            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 10px;border-radius:10px;background:var(--green-pale);color:var(--green);font-weight:700">Answer: ${q.correct||'?'}</span>
-          </div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 10px;border-radius:10px;background:var(--green-pale);color:var(--green);font-weight:700">Answer: ${q.correct||'?'}</span>
           ${q.rule ? `<div style="font-size:12px;color:var(--ink-mid);background:var(--cream);padding:10px 12px;border-left:3px solid var(--gold);border-radius:0 var(--radius) var(--radius) 0">${q.rule.slice(0,300)}${q.rule.length>300?'…':''}</div>` : ''}
         </div>
       </div>
       <div style="margin-top:12px;text-align:right">
         <button class="btn btn-ghost btn-sm" onclick="openEditBeforeImport()">✏️ Edit before adding</button>
       </div>`;
-  } catch(err) {
-    statusEl.textContent = '⚠ Parse error: ' + err.message;
-    previewEl.innerHTML = '';
-  }
+  } catch(err) { statusEl.textContent = '⚠ Parse error: ' + err.message; previewEl.innerHTML = ''; }
 }
 
 function parseQuestionText(raw) {
   const text = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const lines = text.split('\n');
-
-  // ── Detect topic ──────────────────────────────────────────────────
   const TOPICS = ['Civil Procedure','Constitutional Law','Contracts','Criminal Law','Evidence','Real Property','Torts'];
   let topic = 'Unknown', subtopic = 'Unknown';
-  for(const t of TOPICS) {
-    if(text.includes(t)) { topic = t; break; }
-  }
-
-  // ── Find question number ──────────────────────────────────────────
+  for(const t of TOPICS) { if(text.includes(t)) { topic = t; break; } }
   let num = 'N/A';
   const numM = text.match(/Question\s*#?\s*(\d+)/i) || text.match(/#(\d+)/);
   if(numM) num = numM[1];
-
-  // ── BARBRI format detection ───────────────────────────────────────
-  // BARBRI pastes look like:
-  //   [heading line e.g. "Revocation of Offer"]
-  //   [question paragraphs]
-  //   "Responses"
-  //   "* A"
-  //   "[choice text]"
-  //   "[choice text] - not selected, this is the correct answer"   ← correct marker
-  //   "* B" ...
-  //   "Answer Discussion - Incorrect"
-  //   [explanation]
-
   const isBarbri = /\bResponses\b/i.test(text) || /\*\s*[A-D]\s*\n/.test(text) || /this is the correct answer/i.test(text);
-
   const choiceMap = {};
-  let correct = '';
-  let questionBody = '';
-  let rule = '';
-  let takeaway = '';
-
+  let correct = '', questionBody = '', rule = '', takeaway = '';
   if(isBarbri) {
-    // ── Subtopic: first short line before the question body ───────────
     const topLines = lines.map(l=>l.trim()).filter(Boolean);
     for(const line of topLines.slice(0, 8)) {
-      if(line.length > 3 && line.length < 80 &&
-         !TOPICS.includes(line) &&
-         !/^Responses$/i.test(line) &&
-         !/^[A-D]\s/.test(line) &&
-         !/answer/i.test(line)) {
-        subtopic = line; break;
-      }
+      if(line.length > 3 && line.length < 80 && !TOPICS.includes(line) && !/^Responses$/i.test(line) && !/^[A-D]\s/.test(line) && !/answer/i.test(line)) { subtopic = line; break; }
     }
-
-    // ── Question body: everything before "Responses" ──────────────
     const responsesIdx = lines.findIndex(l => /^\s*Responses\s*$/i.test(l.trim()));
     const bodyLines = responsesIdx > 0 ? lines.slice(0, responsesIdx) : lines.slice(0, 20);
-    questionBody = bodyLines
-      .map(l => l.trim())
-      .filter(l => l.length > 20 && !TOPICS.includes(l) && l !== subtopic)
-      .join(' ')
-      .replace(/\s{2,}/g, ' ')
-      .trim();
-
-    // ── Parse BARBRI choice lines ─────────────────────────────────
-    // ACTUAL format (from diagnostic): one big line per choice:
-    // "A Yes, because it was an offer...Yes, because it was an offer... - not selected, this is the correct answer"
-    // The choice text is duplicated then ends with " - [status]"
-    // Strategy: strip the status suffix, then take the first half of the remaining text (it's doubled)
+    questionBody = bodyLines.map(l => l.trim()).filter(l => l.length > 20 && !TOPICS.includes(l) && l !== subtopic).join(' ').replace(/\s{2,}/g, ' ').trim();
     for(const l of lines) {
       const t = l.trim();
-      // Match lines starting with a single letter A-D followed by a space
       const choiceM = t.match(/^([A-D])\s+(.+)$/s);
       if(!choiceM) continue;
       const letter = choiceM[1];
       let body = choiceM[2];
-
-      // Detect correct answer
       if(/this is the correct answer/i.test(body)) correct = letter;
-
-      // Strip status suffix: " - not selected, this is the correct answer" etc
       body = body.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|incorrect|no response given)\s*$/i, '').trim();
-
-      // The choice text is doubled (BARBRI pastes it twice in a row)
-      // Find the split point: the text repeats itself
-      const half = Math.ceil(body.length / 2);
       let deduped = body;
-      // Try to find where the text starts repeating
       for(let split = Math.floor(body.length * 0.3); split < body.length * 0.7; split++) {
         const first = body.slice(0, split).trim();
         const second = body.slice(split).trim();
-        if(first.length > 5 && second.startsWith(first.slice(0, 15))) {
-          deduped = first;
-          break;
-        }
+        if(first.length > 5 && second.startsWith(first.slice(0, 15))) { deduped = first; break; }
       }
-
       if(deduped.length > 2) choiceMap[letter] = deduped;
     }
-
-    // ── Explanation ───────────────────────────────────────────────
-    const expM = text.match(/Answer Discussion\s*[-–]\s*(?:Incorrect|Correct)[^\n]*\n([\s\S]{30,2000})/i)
-               || text.match(/Answer Discussion[^\n]*\n([\s\S]{30,2000})/i);
-    if(expM) {
-      rule = expM[1].replace(/\s+/g,' ').trim().slice(0, 700);
-      const firstSentence = rule.match(/^.+?[.!?](?:\s|$)/);
-      takeaway = firstSentence ? firstSentence[0].trim() : rule.slice(0, 300);
-    }
-
+    const expM = text.match(/Answer Discussion\s*[-–]\s*(?:Incorrect|Correct)[^\n]*\n([\s\S]{30,2000})/i) || text.match(/Answer Discussion[^\n]*\n([\s\S]{30,2000})/i);
+    if(expM) { rule = expM[1].replace(/\s+/g,' ').trim().slice(0, 700); const firstSentence = rule.match(/^.+?[.!?](?:\s|$)/); takeaway = firstSentence ? firstSentence[0].trim() : rule.slice(0, 300); }
   } else {
-    // ── Generic fallback: A) B) C) D) style ──────────────────────
     for(const line of lines.slice(0, 8)) {
       const t = line.trim();
-      if(t.length > 3 && t.length < 80 && !TOPICS.includes(t) && !/^[A-D][\)\.:]/.test(t) && !/answer/i.test(t)) {
-        subtopic = t; break;
-      }
+      if(t.length > 3 && t.length < 80 && !TOPICS.includes(t) && !/^[A-D][\)\.:]/.test(t) && !/answer/i.test(t)) { subtopic = t; break; }
     }
-
     const choiceRe = /\b([A-D])\s*[\)\.\:]\s*(.+?)(?=\n\s*[A-D]\s*[\)\.\:]|\n\s*Answer|\n\s*Explanation|$)/gs;
     let m;
-    while((m = choiceRe.exec(text)) !== null) {
-      const body = m[2].replace(/\n/g,' ').trim();
-      if(body.length > 2 && body.length < 400) choiceMap[m[1]] = body;
-    }
-
-    const corrM = text.match(/(?:correct answer is|answer is|answer:)\s*([A-D])/i)
-               || text.match(/\b([A-D])\s+is\s+(?:the\s+)?correct/i);
+    while((m = choiceRe.exec(text)) !== null) { const body = m[2].replace(/\n/g,' ').trim(); if(body.length > 2 && body.length < 400) choiceMap[m[1]] = body; }
+    const corrM = text.match(/(?:correct answer is|answer is|answer:)\s*([A-D])/i) || text.match(/\b([A-D])\s+is\s+(?:the\s+)?correct/i);
     if(corrM) correct = corrM[1].toUpperCase();
-
     const firstChoiceIdx = text.search(/\n\s*[A-D]\s*[\)\.\:]/);
     const bodyRaw = firstChoiceIdx > 0 ? text.slice(0, firstChoiceIdx) : text.slice(0, 800);
-    questionBody = bodyRaw.split('\n')
-      .filter(l => { const t=l.trim(); return t.length>20 && !TOPICS.includes(t) && !/^#?\d+/.test(t); })
-      .join(' ').replace(/\s{2,}/g,' ').trim();
-
+    questionBody = bodyRaw.split('\n').filter(l => { const t=l.trim(); return t.length>20 && !TOPICS.includes(t) && !/^#?\d+/.test(t); }).join(' ').replace(/\s{2,}/g,' ').trim();
     const expM = text.match(/(?:Answer Discussion|Explanation)[^\n]*\n([\s\S]{30,1200})/i);
-    if(expM) {
-      rule = expM[1].replace(/\s+/g,' ').trim().slice(0, 700);
-      takeaway = rule.slice(0, 300);
-    }
+    if(expM) { rule = expM[1].replace(/\s+/g,' ').trim().slice(0, 700); takeaway = rule.slice(0, 300); }
   }
-
   if(Object.keys(choiceMap).length < 2) return null;
   if(!questionBody || questionBody.length < 15) return null;
-
   const choicesStr = Object.entries(choiceMap).sort().map(([l,t])=>`${l})  ${t}`).join('\n\n');
-
   return { num, topic, subtopic, question: questionBody, choices: choicesStr, correct, rule, takeaway, notes: '', status: 'Not Started', mastered: 'No' };
 }
 
 function openEditBeforeImport() {
   if(!ssPendingImport.length) return;
   const q = ssPendingImport[0];
-  // Pre-fill the manual add modal
   document.getElementById('add-topic').value = q.topic !== 'Unknown' ? q.topic : '';
   document.getElementById('add-subtopic').value = q.subtopic !== 'Unknown' ? q.subtopic : '';
   document.getElementById('add-question').value = q.question || '';
@@ -1626,21 +1329,12 @@ function openEditBeforeImport() {
 }
 
 function confirmSSImport() {
-  const toAdd = ssPendingImport.filter(q => q._isNew !== false || true).map(({_isNew, ...q}) => q);
-  // Only add truly new ones unless user clicked "Add Anyway"
   const reallyAdd = ssPendingImport.map(({_isNew,...q})=>q);
   reallyAdd.forEach(q => questions.push(q));
   save();
-  document.getElementById('ss-preview').innerHTML =
-    `<div class="card" style="margin-top:16px"><div class="card-body" style="text-align:center;padding:28px">
-      <div style="font-size:36px;margin-bottom:10px">✅</div>
-      <h3 style="font-family:'Playfair Display',serif;color:var(--navy);font-size:18px">${reallyAdd.length} question${reallyAdd.length!==1?'s':''} added</h3>
-      <p style="color:var(--ink-soft);margin-top:6px;font-size:13px">Paste another question, or head to the Question Log.</p>
-    </div></div>`;
-  const ta = document.getElementById('ss-text-input');
-  if(ta) ta.value = '';
-  const st = document.getElementById('ss-parse-status');
-  if(st) st.textContent = '';
+  document.getElementById('ss-preview').innerHTML = `<div class="card" style="margin-top:16px"><div class="card-body" style="text-align:center;padding:28px"><div style="font-size:36px;margin-bottom:10px">✅</div><h3 style="font-family:'Playfair Display',serif;color:var(--navy);font-size:18px">${reallyAdd.length} question${reallyAdd.length!==1?'s':''} added</h3><p style="color:var(--ink-soft);margin-top:6px;font-size:13px">Paste another question, or head to the Question Log.</p></div></div>`;
+  const ta = document.getElementById('ss-text-input'); if(ta) ta.value = '';
+  const st = document.getElementById('ss-parse-status'); if(st) st.textContent = '';
   ssPendingImport = [];
   renderDashboard();
   toast('✅ Question added!');
@@ -1649,10 +1343,8 @@ function confirmSSImport() {
 function cancelSSImport() {
   ssPendingImport = [];
   document.getElementById('ss-preview').innerHTML = '';
-  const ta = document.getElementById('ss-text-input');
-  if(ta) ta.value = '';
-  const st = document.getElementById('ss-parse-status');
-  if(st) st.textContent = '';
+  const ta = document.getElementById('ss-text-input'); if(ta) ta.value = '';
+  const st = document.getElementById('ss-parse-status'); if(st) st.textContent = '';
 }
 
 </script>
