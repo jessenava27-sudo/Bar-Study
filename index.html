@@ -1265,26 +1265,57 @@ function parseQuestionText(raw) {
   if(isBarbri) {
     const topLines = lines.map(l=>l.trim()).filter(Boolean);
     for(const line of topLines.slice(0, 8)) {
-      if(line.length > 3 && line.length < 80 && !TOPICS.includes(line) && !/^Responses$/i.test(line) && !/^[A-D]\s/.test(line) && !/answer/i.test(line)) { subtopic = line; break; }
+      if(line.length > 3 && line.length < 80 && !TOPICS.includes(line) && !/^Responses$/i.test(line) && !/^\*\s*[A-D]/.test(line) && !/^[A-D]\s/.test(line) && !/answer/i.test(line)) { subtopic = line; break; }
     }
     const responsesIdx = lines.findIndex(l => /^\s*Responses\s*$/i.test(l.trim()));
     const bodyLines = responsesIdx > 0 ? lines.slice(0, responsesIdx) : lines.slice(0, 20);
-    questionBody = bodyLines.map(l => l.trim()).filter(l => l.length > 20 && !TOPICS.includes(l) && l !== subtopic).join(' ').replace(/\s{2,}/g, ' ').trim();
-    for(const l of lines) {
-      const t = l.trim();
-      const choiceM = t.match(/^([A-D])\s+(.+)$/s);
-      if(!choiceM) continue;
-      const letter = choiceM[1];
-      let body = choiceM[2];
-      if(/this is the correct answer/i.test(body)) correct = letter;
-      body = body.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|incorrect|no response given)\s*$/i, '').trim();
-      let deduped = body;
-      for(let split = Math.floor(body.length * 0.3); split < body.length * 0.7; split++) {
-        const first = body.slice(0, split).trim();
-        const second = body.slice(split).trim();
-        if(first.length > 5 && second.startsWith(first.slice(0, 15))) { deduped = first; break; }
+    // Include lines >= 5 chars (catches short fill-in-the-blank style questions), exclude topic name but keep subtopic if it's part of the question
+    const bodyFiltered = bodyLines.map(l => l.trim()).filter(l => l.length >= 5 && !TOPICS.includes(l));
+    // If the subtopic IS the entire question (e.g. "This is known as..."), include it
+    questionBody = bodyFiltered.join(' ').replace(/\s{2,}/g, ' ').trim();
+
+    // Handle both "* A\nChoice text\n" and "A Choice text - status" formats
+    // First try the "* A" bullet format
+    const starChoiceRe = /^\*\s*([A-D])\s*$/;
+    let i = 0;
+    while(i < lines.length) {
+      const t = lines[i].trim();
+      const starM = t.match(starChoiceRe);
+      if(starM) {
+        const letter = starM[1];
+        // Next non-empty line is the choice text (first occurrence = the choice)
+        let j = i + 1;
+        while(j < lines.length && !lines[j].trim()) j++;
+        if(j < lines.length) {
+          let choiceText = lines[j].trim();
+          // Strip status suffix
+          choiceText = choiceText.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|incorrect|no response given)\s*$/i, '').trim();
+          if(choiceText.length > 1) choiceMap[letter] = choiceText;
+          // Check the status line (j) or next line for correct answer marker
+          const statusLine = lines[j].trim();
+          if(/this is the correct answer/i.test(statusLine)) correct = letter;
+          // Also check line after choice text
+          if(j+1 < lines.length && /this is the correct answer/i.test(lines[j+1])) correct = letter;
+        }
+        i = j + 1;
+        continue;
       }
-      if(deduped.length > 2) choiceMap[letter] = deduped;
+      // Also handle inline "A ChoiceText - status" format
+      const choiceM = t.match(/^([A-D])\s+(.+)$/s);
+      if(choiceM && !/^\*/.test(t)) {
+        const letter = choiceM[1];
+        let body = choiceM[2];
+        if(/this is the correct answer/i.test(body)) correct = letter;
+        body = body.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|incorrect|no response given)\s*$/i, '').trim();
+        let deduped = body;
+        for(let split = Math.floor(body.length * 0.3); split < body.length * 0.7; split++) {
+          const first = body.slice(0, split).trim();
+          const second = body.slice(split).trim();
+          if(first.length > 5 && second.startsWith(first.slice(0, 15))) { deduped = first; break; }
+        }
+        if(deduped.length > 2 && !choiceMap[letter]) choiceMap[letter] = deduped;
+      }
+      i++;
     }
     const expM = text.match(/Answer Discussion\s*[-–]\s*(?:Incorrect|Correct)[^\n]*\n([\s\S]{30,2000})/i) || text.match(/Answer Discussion[^\n]*\n([\s\S]{30,2000})/i);
     if(expM) { rule = expM[1].replace(/\s+/g,' ').trim().slice(0, 700); const firstSentence = rule.match(/^.+?[.!?](?:\s|$)/); takeaway = firstSentence ? firstSentence[0].trim() : rule.slice(0, 300); }
@@ -1305,7 +1336,7 @@ function parseQuestionText(raw) {
     if(expM) { rule = expM[1].replace(/\s+/g,' ').trim().slice(0, 700); takeaway = rule.slice(0, 300); }
   }
   if(Object.keys(choiceMap).length < 2) return null;
-  if(!questionBody || questionBody.length < 15) return null;
+  if(!questionBody || questionBody.length < 5) return null;
   const choicesStr = Object.entries(choiceMap).sort().map(([l,t])=>`${l})  ${t}`).join('\n\n');
   return { num, topic, subtopic, question: questionBody, choices: choicesStr, correct, rule, takeaway, notes: '', status: 'Not Started', mastered: 'No' };
 }
