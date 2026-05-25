@@ -1269,10 +1269,13 @@ function parseQuestionText(raw) {
     }
     const responsesIdx = lines.findIndex(l => /^\s*Responses\s*$/i.test(l.trim()));
     const bodyLines = responsesIdx > 0 ? lines.slice(0, responsesIdx) : lines.slice(0, 20);
-    // Include lines >= 5 chars (catches short fill-in-the-blank style questions), exclude topic name but keep subtopic if it's part of the question
+    // Include lines >= 5 chars, exclude topic names
     const bodyFiltered = bodyLines.map(l => l.trim()).filter(l => l.length >= 5 && !TOPICS.includes(l));
-    // If the subtopic IS the entire question (e.g. "This is known as..."), include it
     questionBody = bodyFiltered.join(' ').replace(/\s{2,}/g, ' ').trim();
+    // If body is empty/tiny, the subtopic IS the question (e.g. "...is deemed to reside in:") — use it directly
+    if(questionBody.length < 10 && subtopic && subtopic !== 'Unknown') {
+      questionBody = subtopic;
+    }
 
     // Handle both "* A\nChoice text\n" and "A Choice text - status" formats
     // First try the "* A" bullet format
