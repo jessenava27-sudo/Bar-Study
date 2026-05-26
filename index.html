@@ -1308,6 +1308,24 @@ function parseQuestionText(raw) {
         i = j + 1;
         continue;
       }
+      // Handle inline "A	ChoiceText[ChoiceText] - status" format (tab-separated, all one line)
+      const tabM = lines[i].match(/^([A-D])\t(.+)$/s);
+      if(tabM && lines[i+1] && !/^\*/.test(lines[i+1].trim()) && !/^[A-D]\t/.test(lines[i+1])) {
+        // This is the all-in-one-line format
+        const letter = tabM[1];
+        let body = tabM[2];
+        if(/this is the correct answer/i.test(body)) correct = letter;
+        body = body.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|incorrect|no response given)\s*$/i, '').trim();
+        // Dedup doubled text
+        let deduped = body;
+        for(let split = Math.floor(body.length * 0.3); split < body.length * 0.7; split++) {
+          const first = body.slice(0, split).trim();
+          const second = body.slice(split).trim();
+          if(first.length > 5 && second.startsWith(first.slice(0, 15))) { deduped = first; break; }
+        }
+        if(deduped.length > 2 && !choiceMap[letter]) choiceMap[letter] = deduped;
+        i++; continue;
+      }
       // Also handle inline "A ChoiceText - status" format
       const choiceM = t.match(/^([A-D])\s+(.+)$/s);
       if(choiceM && !/^\*/.test(t)) {
