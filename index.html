@@ -522,23 +522,47 @@ function showSync(msg, duration = 2000) {
   }
 }
 
-async function save() {
+async function save(changedIdxs) {
+  // Always write to localStorage immediately
   localStorage.setItem('mbe_q_v3', JSON.stringify(questions));
   localStorage.setItem('mbe_comfort_v3', JSON.stringify(ruleComfort));
   if (!currentUser) return;
+
   showSync('⟳ Syncing...', 0);
   try {
-    const payload = { user_id: currentUser.id, questions_json: JSON.stringify(questions), comfort_json: JSON.stringify(ruleComfort), updated_at: new Date().toISOString() };
-    // Add 10s timeout so it never hangs forever
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Sync timeout')), 10000));
-    const upsertPromise = sb.from('mbe_tracker_data').upsert(payload, { onConflict: 'user_id' });
-    const { error } = await Promise.race([upsertPromise, timeoutPromise]);
-    if (error) throw error;
+    // Save comfort settings as a single metadata row
+    const metaRow = {
+      user_id: currentUser.id,
+      question_key: '__comfort__',
+      question_data: ruleComfort,
+      updated_at: new Date().toISOString()
+    };
+
+    // Determine which questions to save
+    // If specific indexes passed, only save those; otherwise save all
+    const toSave = (changedIdxs !== undefined)
+      ? changedIdxs.map(i => questions[i]).filter(Boolean)
+      : questions;
+
+    const rows = toSave.map(q => ({
+      user_id: currentUser.id,
+      question_key: (q.num + '|' + q.topic + '|' + q.subtopic).slice(0, 500),
+      question_data: q,
+      updated_at: new Date().toISOString()
+    }));
+    rows.push(metaRow);
+
+    // Upsert in batches of 50 to avoid request size limits
+    const BATCH = 50;
+    for(let i = 0; i < rows.length; i += BATCH) {
+      const batch = rows.slice(i, i + BATCH);
+      const { error } = await sb.from('mbe_questions_v2').upsert(batch, { onConflict: 'user_id,question_key' });
+      if(error) throw error;
+    }
     showSync('✓ Synced', 2000);
   } catch(e) {
     console.warn('Sync error:', e.message);
     showSync('⚠ Saved locally only', 3000);
-    // Still safe — data is in localStorage
   }
 }
 
@@ -557,40 +581,49 @@ async function load() {
   } catch(e) { console.warn('Local load error:', e); }
   if (!currentUser) return;
   try {
-    const { data, error } = await sb.from('mbe_tracker_data').select('questions_json,comfort_json,updated_at').eq('user_id', currentUser.id).single();
+    // Load all rows for this user from the new per-question table
+    const { data, error } = await sb.from('mbe_questions_v2')
+      .select('question_key,question_data')
+      .eq('user_id', currentUser.id);
+
     if (error && error.code !== 'PGRST116') throw error;
-    if (data) {
-      // Merge cloud + local: keep ALL questions from both sources, cloud wins on conflicts
-      const cloudParsed = JSON.parse(data.questions_json);
-      const localRaw = localStorage.getItem('mbe_q_v3');
-      const localParsed = localRaw ? JSON.parse(localRaw) : [];
 
-      // Build merged map: start with cloud, then layer local on top (local is more recent)
-      const merged = {};
-      cloudParsed.forEach(q => { merged[q.num+'|'+q.topic+'|'+q.subtopic] = q; });
-      localParsed.forEach(q => { merged[q.num+'|'+q.topic+'|'+q.subtopic] = q; }); // local wins
+    if (data && data.length > 0) {
+      // Separate comfort metadata from question rows
+      const comfortRow = data.find(r => r.question_key === '__comfort__');
+      const questionRows = data.filter(r => r.question_key !== '__comfort__');
 
-      // Also include any hardcoded defaults not in either
-      questions.forEach(q => {
-        const k = q.num+'|'+q.topic+'|'+q.subtopic;
-        if(!merged[k]) merged[k] = q;
-      });
-
-      questions = Object.values(merged);
-      if (data.comfort_json) {
-        const cloudComfort = JSON.parse(data.comfort_json);
-        ruleComfort = {...cloudComfort, ...ruleComfort}; // local comfort wins
+      if (comfortRow) {
+        const cloudComfort = comfortRow.question_data;
+        ruleComfort = {...cloudComfort, ...ruleComfort}; // local wins
       }
 
-      // Write merged back to both localStorage and Supabase
+      // Build merged map: defaults < cloud < local
+      const merged = {};
+      // Start with hardcoded defaults
+      questions.forEach(q => { merged[q.num+'|'+q.topic+'|'+q.subtopic] = q; });
+      // Layer cloud on top
+      questionRows.forEach(r => {
+        const q = r.question_data;
+        merged[q.num+'|'+q.topic+'|'+q.subtopic] = q;
+      });
+      // Layer local on top (most recent)
+      const localRaw = localStorage.getItem('mbe_q_v3');
+      if(localRaw) {
+        JSON.parse(localRaw).forEach(q => {
+          merged[q.num+'|'+q.topic+'|'+q.subtopic] = q;
+        });
+      }
+
+      questions = Object.values(merged);
       localStorage.setItem('mbe_q_v3', JSON.stringify(questions));
       localStorage.setItem('mbe_comfort_v3', JSON.stringify(ruleComfort));
 
-      // Push merged back to Supabase so it stays in sync
-      const payload = { user_id: currentUser.id, questions_json: JSON.stringify(questions), comfort_json: JSON.stringify(ruleComfort), updated_at: new Date().toISOString() };
-      sb.from('mbe_tracker_data').upsert(payload, { onConflict: 'user_id' }).then(({error}) => {
-        if(error) console.warn('Load re-sync error:', error.message);
-      });
+      // Push merged back up so cloud stays current
+      save();
+    } else {
+      // No cloud data yet — push everything from localStorage up to Supabase
+      save();
     }
   } catch(e) { console.warn('Cloud load error:', e.message); }
 }
@@ -1128,10 +1161,10 @@ function toggleCard(idx){
   if(h)h.classList.toggle('open'); if(b)b.classList.toggle('open');
 }
 function toggleAnswer(idx){const e=document.getElementById('ans-'+idx);if(e)e.classList.toggle('shown');}
-function updateStatus(idx,val){questions[idx].status=val;save();renderDashboard();toast('Status updated');}
-function updateNotes(idx,val){questions[idx].notes=val;save();}
+function updateStatus(idx,val){questions[idx].status=val;save([idx]);renderDashboard();toast('Status updated');}
+function updateNotes(idx,val){questions[idx].notes=val;save([idx]);}
 function toggleMastered(idx){
-  questions[idx].mastered=questions[idx].mastered==='Yes'?'No':'Yes'; save();
+  questions[idx].mastered=questions[idx].mastered==='Yes'?'No':'Yes'; save([idx]);
   const btn=document.querySelector('#qcard-'+idx+' .mastered-toggle');
   if(btn){btn.classList.toggle('active');btn.textContent=(questions[idx].mastered==='Yes'?'✅':'⬜')+' Mastered';}
   renderDashboard(); toast(questions[idx].mastered==='Yes'?'✅ Mastered!':'Unmarked');
