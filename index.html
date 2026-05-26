@@ -529,10 +529,17 @@ async function save() {
   showSync('⟳ Syncing...', 0);
   try {
     const payload = { user_id: currentUser.id, questions_json: JSON.stringify(questions), comfort_json: JSON.stringify(ruleComfort), updated_at: new Date().toISOString() };
-    const { error } = await sb.from('mbe_tracker_data').upsert(payload, { onConflict: 'user_id' });
+    // Add 10s timeout so it never hangs forever
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Sync timeout')), 10000));
+    const upsertPromise = sb.from('mbe_tracker_data').upsert(payload, { onConflict: 'user_id' });
+    const { error } = await Promise.race([upsertPromise, timeoutPromise]);
     if (error) throw error;
     showSync('✓ Synced', 2000);
-  } catch(e) { console.warn('Sync error:', e.message); showSync('⚠ Saved locally only', 3000); }
+  } catch(e) {
+    console.warn('Sync error:', e.message);
+    showSync('⚠ Saved locally only', 3000);
+    // Still safe — data is in localStorage
+  }
 }
 
 async function load() {
@@ -550,17 +557,40 @@ async function load() {
   } catch(e) { console.warn('Local load error:', e); }
   if (!currentUser) return;
   try {
-    const { data, error } = await sb.from('mbe_tracker_data').select('questions_json,comfort_json').eq('user_id', currentUser.id).single();
+    const { data, error } = await sb.from('mbe_tracker_data').select('questions_json,comfort_json,updated_at').eq('user_id', currentUser.id).single();
     if (error && error.code !== 'PGRST116') throw error;
     if (data) {
-      const parsed = JSON.parse(data.questions_json);
-      const map = {};
-      parsed.forEach(q => map[q.num+'|'+q.topic+'|'+q.subtopic] = q);
-      questions = questions.map(q => { const k = q.num+'|'+q.topic+'|'+q.subtopic; return map[k] ? {...q, ...map[k]} : q; });
-      parsed.forEach(q => { const k = q.num+'|'+q.topic+'|'+q.subtopic; if (!questions.some(eq => eq.num+'|'+eq.topic+'|'+eq.subtopic===k)) questions.push(q); });
-      if (data.comfort_json) ruleComfort = JSON.parse(data.comfort_json);
+      // Merge cloud + local: keep ALL questions from both sources, cloud wins on conflicts
+      const cloudParsed = JSON.parse(data.questions_json);
+      const localRaw = localStorage.getItem('mbe_q_v3');
+      const localParsed = localRaw ? JSON.parse(localRaw) : [];
+
+      // Build merged map: start with cloud, then layer local on top (local is more recent)
+      const merged = {};
+      cloudParsed.forEach(q => { merged[q.num+'|'+q.topic+'|'+q.subtopic] = q; });
+      localParsed.forEach(q => { merged[q.num+'|'+q.topic+'|'+q.subtopic] = q; }); // local wins
+
+      // Also include any hardcoded defaults not in either
+      questions.forEach(q => {
+        const k = q.num+'|'+q.topic+'|'+q.subtopic;
+        if(!merged[k]) merged[k] = q;
+      });
+
+      questions = Object.values(merged);
+      if (data.comfort_json) {
+        const cloudComfort = JSON.parse(data.comfort_json);
+        ruleComfort = {...cloudComfort, ...ruleComfort}; // local comfort wins
+      }
+
+      // Write merged back to both localStorage and Supabase
       localStorage.setItem('mbe_q_v3', JSON.stringify(questions));
       localStorage.setItem('mbe_comfort_v3', JSON.stringify(ruleComfort));
+
+      // Push merged back to Supabase so it stays in sync
+      const payload = { user_id: currentUser.id, questions_json: JSON.stringify(questions), comfort_json: JSON.stringify(ruleComfort), updated_at: new Date().toISOString() };
+      sb.from('mbe_tracker_data').upsert(payload, { onConflict: 'user_id' }).then(({error}) => {
+        if(error) console.warn('Load re-sync error:', error.message);
+      });
     }
   } catch(e) { console.warn('Cloud load error:', e.message); }
 }
