@@ -1149,7 +1149,7 @@ function parseQuestionText(raw) {
   let num = 'N/A';
   const numM = text.match(/Question\s*#?\s*(\d+)/i) || text.match(/#(\d+)/);
   if(numM) num = numM[1];
-  const isBarbri = /\bResponses\b/i.test(text) || /\*\s*[A-D]\s*\n/.test(text) || /this is the correct answer/i.test(text);
+  const isBarbri = /\bResponses\b/i.test(text) || /\*\s*[A-D]\s*\n/.test(text) || /this is the correct answer/i.test(text) || /^\*\s*[A-D]\s*$/m.test(text);
   const choiceMap = {};
   let correct = '', questionBody = '', rule = '', takeaway = '';
   if(isBarbri) {
@@ -1182,13 +1182,13 @@ function parseQuestionText(raw) {
         if(j < lines.length) {
           let choiceText = lines[j].trim();
           // Strip status suffix
-          choiceText = choiceText.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|incorrect|no response given)\s*$/i, '').trim();
+          choiceText = choiceText.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|correct|incorrect|no response given)\s*$/i, '').trim();
           if(choiceText.length > 1) choiceMap[letter] = choiceText;
           // Check the status line (j) or next line for correct answer marker
           const statusLine = lines[j].trim();
-          if(/this is the correct answer/i.test(statusLine)) correct = letter;
+          if(/this is the correct answer/i.test(statusLine) || /\s-\s*correct\s*$/i.test(statusLine)) correct = letter;
           // Also check line after choice text
-          if(j+1 < lines.length && /this is the correct answer/i.test(lines[j+1])) correct = letter;
+          if(j+1 < lines.length && (/this is the correct answer/i.test(lines[j+1]) || /\s-\s*correct\s*$/i.test(lines[j+1]))) correct = letter;
         }
         i = j + 1;
         continue;
@@ -1199,8 +1199,8 @@ function parseQuestionText(raw) {
         // This is the all-in-one-line format
         const letter = tabM[1];
         let body = tabM[2];
-        if(/this is the correct answer/i.test(body)) correct = letter;
-        body = body.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|incorrect|no response given)\s*$/i, '').trim();
+        if(/this is the correct answer/i.test(body) || /\s-\s*correct\s*$/i.test(body)) correct = letter;
+        body = body.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|correct|incorrect|no response given)\s*$/i, '').trim();
         // Dedup doubled text
         let deduped = body;
         for(let split = Math.floor(body.length * 0.3); split < body.length * 0.7; split++) {
@@ -1216,8 +1216,8 @@ function parseQuestionText(raw) {
       if(choiceM && !/^\*/.test(t)) {
         const letter = choiceM[1];
         let body = choiceM[2];
-        if(/this is the correct answer/i.test(body)) correct = letter;
-        body = body.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|incorrect|no response given)\s*$/i, '').trim();
+        if(/this is the correct answer/i.test(body) || /\s-\s*correct\s*$/i.test(body)) correct = letter;
+        body = body.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|correct|incorrect|no response given)\s*$/i, '').trim();
         let deduped = body;
         for(let split = Math.floor(body.length * 0.3); split < body.length * 0.7; split++) {
           const first = body.slice(0, split).trim();
