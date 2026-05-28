@@ -1259,8 +1259,13 @@ function parseQuestionText(raw) {
         if(corrDirect) {
           correct = corrDirect[1].toUpperCase();
         } else {
-          // Subtract letters explicitly labeled incorrect
-          const incorrectSet = new Set([...expText.matchAll(/\(([A-D])\)\s+is\s+incorrect/gi)].map(m => m[1].toUpperCase()));
+          // Subtract letters explicitly labeled incorrect — handles "(A) is incorrect", "(A) and (B) are incorrect", etc.
+          const incorrectSet = new Set();
+          for(const sentence of expText.split(/\.(?:\s|$)/)) {
+            if(/\bincorrect\b/i.test(sentence)) {
+              for(const m of sentence.matchAll(/\(([A-D])\)/gi)) incorrectSet.add(m[1].toUpperCase());
+            }
+          }
           const remaining = ['A','B','C','D'].filter(l => !incorrectSet.has(l) && choiceMap[l]);
           if(remaining.length === 1) {
             correct = remaining[0];
