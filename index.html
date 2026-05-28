@@ -1609,6 +1609,10 @@ function renderPracticeCard() {
     '<div style="background:var(--green-pale);border:1.5px solid var(--green);border-radius:var(--radius);padding:10px 16px;font-family:\'IBM Plex Mono\',monospace;font-weight:700;font-size:16px;color:var(--green);letter-spacing:2px;margin-bottom:12px">✓ '+q.correct+'</div>'+
     (q.rule?'<div style="background:var(--cream);border-left:3px solid var(--gold);padding:12px 14px;border-radius:0 var(--radius) var(--radius) 0;font-size:13px;line-height:1.65;margin-bottom:8px">'+q.rule+'</div>':'')+
     (q.takeaway?'<div style="background:var(--blue-pale);border-left:3px solid #1976d2;padding:12px 14px;border-radius:0 var(--radius) var(--radius) 0;font-size:13px;line-height:1.65">'+q.takeaway+'</div>':'')+
+    '<div style="margin-top:14px">'+
+    '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--ink-soft);margin-bottom:6px">My Notes</div>'+
+    '<textarea id="practice-notes-input" class="notes-textarea" placeholder="Add notes for this question..." style="min-height:70px;font-size:13px" onchange="savePracticeNote('+qIdx+',this.value)" oninput="savePracticeNote('+qIdx+',this.value)">'+(q.notes||'')+'</textarea>'+
+    '</div>'+
     '</div>'+
     // footer: SR rating buttons (shown after answer) or next button
     '<div class="sr-rating-bar" id="practice-footer">'+
@@ -1659,6 +1663,12 @@ function autoAdvancePractice(qIdx) {
 function ratePractice(rating, qIdx) {
   if(qIdx >= 0) srRate(qIdx, rating);
   nextPractice();
+}
+
+function savePracticeNote(idx, val) {
+  if(idx < 0 || idx >= questions.length) return;
+  questions[idx].notes = val;
+  save();
 }
 
 function nextPractice() {
