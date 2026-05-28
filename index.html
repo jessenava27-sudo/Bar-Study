@@ -1642,10 +1642,11 @@ function selectPracticeChoice(letter, correct, qIdx) {
   ['sr-again','sr-hard','sr-good','sr-easy','pr-next'].forEach(id=>{
     const el=document.getElementById(id); if(el)el.style.display='inline-block';
   });
-  // Auto-update question status
-  if(qIdx>=0) {
-    if(!ok && questions[qIdx].status!=='More Practice Needed') { questions[qIdx].status='More Practice Needed'; save(); }
-    else if(ok && questions[qIdx].status==='Not Started') { questions[qIdx].status='Reviewed'; save(); }
+  // Auto-update question status — always reflects in dashboard/log
+  if(qIdx>=0 && questions[qIdx].mastered !== 'Yes') {
+    questions[qIdx].status = ok ? 'Reviewed' : 'More Practice Needed';
+    save();
+    renderDashboard(); // keep dashboard Recent Activity in sync
   }
 }
 
@@ -1658,10 +1659,20 @@ function autoAdvancePractice(qIdx) {
   document.getElementById('practice-answer').style.display='block';
   ['sr-again','sr-hard','sr-good','sr-easy','pr-next'].forEach(id=>{ const el=document.getElementById(id); if(el)el.style.display='inline-block'; });
   srRate(qIdx, 0); // time-out = Prioritize (2-3 days)
+  if(qIdx>=0 && questions[qIdx].mastered !== 'Yes') { questions[qIdx].status='More Practice Needed'; save(); renderDashboard(); }
 }
 
 function ratePractice(rating, qIdx) {
-  if(qIdx >= 0) srRate(qIdx, rating);
+  if(qIdx >= 0) {
+    srRate(qIdx, rating);
+    if(rating === 3) { // Easy = Mastered
+      questions[qIdx].mastered = 'Yes';
+      questions[qIdx].status = 'Mastered';
+      save();
+      renderDashboard();
+      toast('✅ Mastered!');
+    }
+  }
   nextPractice();
 }
 
