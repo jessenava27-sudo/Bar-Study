@@ -1150,9 +1150,10 @@ function parseQuestionText(raw) {
   const numM = text.match(/Question\s*#?\s*(\d+)/i) || text.match(/#(\d+)/);
   if(numM) num = numM[1];
 
-  // Detect format: BARBRI/AdaptiBar "* A" bullet format
+  // Detect format: BARBRI/AdaptiBar formats — "* A" bullets OR plain "A Text" with Answer Discussion
   const isBarbri = /\bResponses\b/i.test(text) || /\*\s*[A-D]\s*\n/.test(text) ||
-                   /this is the correct answer/i.test(text) || /^\*\s*[A-D]\s*$/m.test(text);
+                   /this is the correct answer/i.test(text) || /^\*\s*[A-D]\s*$/m.test(text) ||
+                   (/Answer Discussion/i.test(text) && /^[A-D]\s+\w/m.test(text));
 
   const choiceMap = {};
   let correct = '', questionBody = '', rule = '', takeaway = '';
@@ -1160,15 +1161,22 @@ function parseQuestionText(raw) {
   if(isBarbri) {
     // === BARBRI / AdaptiBar with "* A" bullet format ===
 
-    // Bound question body at first "* A" line (not any line starting with a letter)
+    // Bound question body at first choice line
     const firstStarLine = lines.findIndex(l => /^\*\s*[A-D]\s*$/.test(l.trim()));
     const responsesLine = lines.findIndex(l => /^\s*Responses\s*$/i.test(l.trim()));
-    const bodyEnd = firstStarLine > 0 ? firstStarLine : responsesLine > 0 ? responsesLine : 20;
+    // For plain "A Text" format (no * bullets): find first line that looks like a choice
+    const firstPlainChoiceLine = (firstStarLine < 0 && responsesLine < 0)
+      ? lines.findIndex((l, idx) => idx > 0 && /^[A-D]\s+\S/.test(l.trim()) && l.trim().length < 200)
+      : -1;
+    const bodyEnd = firstStarLine > 0 ? firstStarLine
+                  : responsesLine > 0 ? responsesLine
+                  : firstPlainChoiceLine > 0 ? firstPlainChoiceLine
+                  : 20;
     const bodyFiltered = lines.slice(0, bodyEnd).map(l => l.trim()).filter(l => l.length >= 5 && !TOPICS.includes(l));
     questionBody = bodyFiltered.join(' ').replace(/\s{2,}/g, ' ').trim();
 
-    // Subtopic: first short, non-choice, non-topic line
-    const topLines = lines.map(l => l.trim()).filter(Boolean);
+    // Subtopic: first short, non-choice, non-topic line — only look before the choices start
+    const topLines = lines.slice(0, Math.max(bodyEnd, 4)).map(l => l.trim()).filter(Boolean);
     for(const line of topLines.slice(0, 8)) {
       if(line.length > 3 && line.length < 80 && !TOPICS.includes(line) &&
          !/^\s*Responses\s*$/i.test(line) && !/^\*\s*[A-D]/.test(line) &&
