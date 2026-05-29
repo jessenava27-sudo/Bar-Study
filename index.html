@@ -978,10 +978,10 @@ function parseAdaptibar(text, wrongOnly) {
     let explanation = '';
     const em = block.match(/(?:Brief Explanation|(?<![a-z])Explanation(?=[A-Z]))(.+?)(?=Extended Explanation|©|$)/s);
     if(em) { explanation = em[1].replace(/©[\s\S]+/, '').replace(/\n\d+\s*$/, '').replace(/\s+/g, ' ').trim(); }
-    const rule = explanation.slice(0, 500);
+    const rule = explanation.slice(0, 2000);
     let takeaway = '';
     const tm = explanation.match(new RegExp(correct + '\\s+is correct[.\\s]+(.+?)(?=[A-D]\\s+is incorrect|[A-D]\\s+is correct|$)'));
-    takeaway = tm ? tm[1].trim().slice(0, 350) : explanation.slice(0, 300);
+    takeaway = tm ? tm[1].trim().slice(0, 800) : explanation.slice(0, 300);
     questions.push({ num, topic, subtopic, question: qText, choices: choicesStr, correct, rule, takeaway, notes: '', status: 'Not Started', mastered: 'No' });
   }
   return questions;
@@ -1327,9 +1327,9 @@ function parseQuestionText(raw) {
     const expM = text.match(/Answer Discussion\s*[-\u2013]\s*(?:Incorrect|Correct)[^\n]*\n([\s\S]{30,2000})/i) ||
                  text.match(/Answer Discussion[^\n]*\n([\s\S]{30,2000})/i);
     if(expM) {
-      rule = expM[1].replace(/\s+/g,' ').trim().slice(0, 700);
+      rule = expM[1].replace(/\s+/g,' ').trim().slice(0, 2000);
       const firstSentence = rule.match(/^.+?[.!?](?:\s|$)/);
-      takeaway = firstSentence ? firstSentence[0].trim() : rule.slice(0, 300);
+      takeaway = firstSentence ? firstSentence[0].trim() : rule.slice(0, 600);
 
       // Resolve correct answer from explanation if not found inline
       if(!correct) {
@@ -1409,7 +1409,7 @@ function parseQuestionText(raw) {
     const bodyRaw = firstChoiceIdx > 0 ? text.slice(0, firstChoiceIdx) : text.slice(0, 800);
     questionBody = bodyRaw.split('\n').filter(l => { const t=l.trim(); return t.length>20 && !TOPICS.includes(t) && !/^#?\d+/.test(t); }).join(' ').replace(/\s{2,}/g,' ').trim();
     const expM = text.match(/(?:Answer Discussion|Explanation)[^\n]*\n([\s\S]{30,1200})/i);
-    if(expM) { rule = expM[1].replace(/\s+/g,' ').trim().slice(0, 700); takeaway = rule.slice(0, 300); }
+    if(expM) { rule = expM[1].replace(/\s+/g,' ').trim().slice(0, 2000); takeaway = rule.slice(0, 600); }
   }
 
   if(Object.keys(choiceMap).length < 2) return null;
