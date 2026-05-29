@@ -1151,8 +1151,8 @@ function parseAndPreviewText(text) {
     const q = parseQuestionText(text);
     if(!q) {
       const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
-      const isBarbri = /\bResponses\b/i.test(text) || /this is the correct answer/i.test(text);
-      const bulletLines = lines.filter(l => /^\*/.test(l) || /^[A-D]\s*$/.test(l));
+      const isBarbri = /\bResponses\b/i.test(text) || /this is the correct answer/i.test(text) || /^\*\s*[A-D]\s*$/m.test(text) || /^[A-D]$/m.test(text) || (/Answer Discussion/i.test(text) && /^[A-D]\s+\w/m.test(text));
+      const bulletLines = lines.filter(l => /^\*/.test(l) || /^[A-D]\s*$/.test(l) || /^[A-D]\s+\w/.test(l));
       const choiceLines = lines.filter(l => /^\*\s*[A-D]\s*$/.test(l));
       statusEl.textContent = '⚠ Could not parse — see details below';
       previewEl.innerHTML = `<div style="background:var(--cream);border-radius:var(--radius);padding:16px;margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.8"><div style="font-weight:600;margin-bottom:8px;color:var(--navy)">Parser diagnostic:</div><div>Lines total: <b>${lines.length}</b></div><div>BARBRI format detected: <b>${isBarbri}</b></div><div>Lines starting with *: <b>${bulletLines.length}</b></div><div>Choice bullet lines: <b>${choiceLines.length}</b></div><div style="margin-top:8px;color:var(--ink-soft)">First 8 non-empty lines:</div>${lines.slice(0,8).map((l,i)=>`<div style="color:var(--ink-mid)">${i}: <code>"${l.slice(0,80).replace(/</g,'&lt;')}"</code></div>`).join('')}</div>`;
@@ -1195,6 +1195,17 @@ function parseQuestionText(raw) {
   const TOPICS = ['Civil Procedure','Constitutional Law','Contracts','Criminal Law','Evidence','Real Property','Torts'];
   let topic = 'Unknown', subtopic = 'Unknown';
   for(const t of TOPICS) { if(text.includes(t)) { topic = t; break; } }
+  // Infer topic from keywords if not found explicitly
+  if(topic === 'Unknown') {
+    const tl = text.toLowerCase();
+    if(/strict liability|negligence|battery|assault|trespass|defamation|tort|nuisance|conversion|false imprisonment/.test(tl)) topic = 'Torts';
+    else if(/contract|offer|acceptance|consideration|breach|damages|ucc|warranty|promissory/.test(tl)) topic = 'Contracts';
+    else if(/hearsay|evidence|witness|testimony|privilege|relevance|admissible/.test(tl)) topic = 'Evidence';
+    else if(/murder|felony|misdemeanor|criminal|mens rea|actus reus|conspiracy|attempt|larceny|robbery|burglary/.test(tl)) topic = 'Criminal Law';
+    else if(/jurisdiction|venue|pleading|discovery|summary judgment|diversity|federal court|frcp|civil procedure/.test(tl)) topic = 'Civil Procedure';
+    else if(/constitution|first amendment|due process|equal protection|commerce clause|free speech/.test(tl)) topic = 'Constitutional Law';
+    else if(/property|easement|covenant|mortgage|landlord|tenant|deed|title|zoning|adverse possession/.test(tl)) topic = 'Real Property';
+  }
   let num = 'N/A';
   const numM = text.match(/Question\s*#?\s*(\d+)/i) || text.match(/#(\d+)/);
   if(numM) num = numM[1];
@@ -1213,13 +1224,18 @@ function parseQuestionText(raw) {
     // Bound question body at first choice line
     const firstStarLine = lines.findIndex(l => /^\*\s*[A-D]\s*$/.test(l.trim()));
     const responsesLine = lines.findIndex(l => /^\s*Responses\s*$/i.test(l.trim()));
-    // For plain "A Text" format (no * bullets): find first line that looks like a choice
+    // For plain "A Text" format: find first line that looks like a choice
     const firstPlainChoiceLine = (firstStarLine < 0 && responsesLine < 0)
       ? lines.findIndex((l, idx) => idx > 0 && /^[A-D]\s+\S/.test(l.trim()) && l.trim().length < 200)
+      : -1;
+    // For bare-letter format: "A" alone on a line followed by choice text
+    const firstBareLine = (firstStarLine < 0 && responsesLine < 0 && firstPlainChoiceLine < 0)
+      ? lines.findIndex((l, idx) => idx > 0 && /^[A-D]$/.test(l.trim()))
       : -1;
     const bodyEnd = firstStarLine > 0 ? firstStarLine
                   : responsesLine > 0 ? responsesLine
                   : firstPlainChoiceLine > 0 ? firstPlainChoiceLine
+                  : firstBareLine > 0 ? firstBareLine
                   : 20;
     const bodyFiltered = lines.slice(0, bodyEnd).map(l => l.trim()).filter(l => l.length >= 5 && !TOPICS.includes(l));
     questionBody = bodyFiltered.join(' ').replace(/\s{2,}/g, ' ').trim();
@@ -1260,6 +1276,22 @@ function parseQuestionText(raw) {
         i = j + 1; continue;
       }
 
+      // Bare-letter format: "A" alone on its own line, text on the next line
+      const bareM = t.match(/^([A-D])$/);
+      if(bareM && i < bodyEnd + 30) {
+        const letter = bareM[1];
+        let j = i + 1;
+        while(j < lines.length && !lines[j].trim()) j++;
+        // Make sure next line isn't another bare letter or a choice marker
+        if(j < lines.length && !/^[A-D]$/.test(lines[j].trim()) && !/^\*\s*[A-D]/.test(lines[j].trim())) {
+          let choiceText = lines[j].trim();
+          const isCorrect = /this is the correct answer/i.test(choiceText);
+          choiceText = choiceText.replace(/\s*-\s*(not selected,?\s*)?(this is the correct answer|correct|incorrect|no response given)\s*$/i, '').trim();
+          if(choiceText.length > 1 && !choiceMap[letter]) choiceMap[letter] = choiceText;
+          if(isCorrect) correct = letter;
+        }
+        i = j + 1; continue;
+      }
       // Tab-separated "A\tText" format
       const tabM = lines[i].match(/^([A-D])\t(.+)$/s);
       if(tabM) {
@@ -1308,12 +1340,28 @@ function parseQuestionText(raw) {
         if(corrDirect) {
           correct = corrDirect[1].toUpperCase();
         } else {
-          // Subtract letters explicitly labeled incorrect — handles "(A) is incorrect", "(A) and (B) are incorrect", etc.
+          // Subtract letters explicitly labeled incorrect
           const incorrectSet = new Set();
+          // Method 1: "(A) is incorrect" / "(A) and (B) are incorrect" style
           for(const sentence of expText.split(/\.(?:\s|$)/)) {
             if(/\bincorrect\b/i.test(sentence)) {
               for(const m of sentence.matchAll(/\(([A-D])\)/gi)) incorrectSet.add(m[1].toUpperCase());
             }
+          }
+          // Method 2: BARBRI prose style — "It is incorrect that X" / "is NOT X"
+          // Match the clause against choice texts to find which choice is being dismissed
+          const incorrectThatClauses = [...expText.matchAll(/(?:is|also)\s+incorrect\s+that\s+(.+?)(?:\.|;|$)/gi)].map(m=>m[1]);
+          const notClauses = [...expText.matchAll(/\bis\s+NOT\s+(.+?)(?:\.|;)/gi)].map(m=>m[1]);
+          for(const clause of [...incorrectThatClauses, ...notClauses]) {
+            const clauseWords = new Set(clause.toLowerCase().replace(/[^a-z0-9]/g,' ').split(' ').filter(w=>w.length>3));
+            let best='', bestSc=0;
+            for(const [letter, ct] of Object.entries(choiceMap)) {
+              const cw = new Set(ct.toLowerCase().replace(/[^a-z0-9]/g,' ').split(' ').filter(w=>w.length>3));
+              const overlap = [...clauseWords].filter(w=>cw.has(w)).length;
+              const sc = cw.size ? overlap/cw.size : 0;
+              if(sc > bestSc) { bestSc=sc; best=letter; }
+            }
+            if(bestSc > 0.3) incorrectSet.add(best);
           }
           const remaining = ['A','B','C','D'].filter(l => !incorrectSet.has(l) && choiceMap[l]);
           if(remaining.length === 1) {
@@ -1322,6 +1370,25 @@ function parseQuestionText(raw) {
             // First letter mentioned in explanation without "incorrect"
             const firstLetter = expText.match(/\(([A-D])\)/);
             if(firstLetter && !incorrectSet.has(firstLetter[1])) correct = firstLetter[1].toUpperCase();
+          }
+          // Last resort: match explanation prose against choice texts
+          // Handles "Answer Discussion - Incorrect" where explanation restates the correct answer in prose
+          if(!correct && Object.keys(choiceMap).length > 0) {
+            const expFirst = expText.split('\n').filter(l=>l.trim().length>10)[0]||'';
+            const expNorm = expFirst.toLowerCase().replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim();
+            const expWords = new Set(expNorm.split(' ').filter(w=>w.length>3));
+            const expHasNot = /\bnot\b/i.test(expFirst);
+            let bestMatch = '', bestScore = 0;
+            for(const [letter, choiceText] of Object.entries(choiceMap)) {
+              const choiceNorm = choiceText.toLowerCase().replace(/[^a-z0-9]/g,' ').replace(/\s+/g,' ').trim();
+              const choiceWords = new Set(choiceNorm.split(' ').filter(w=>w.length>3));
+              const overlap = [...choiceWords].filter(w=>expWords.has(w)).length;
+              let score = choiceWords.size ? overlap/choiceWords.size : 0;
+              // Penalize choices with negation ("not") when explanation is affirmative
+              if(/\bnot\b/i.test(choiceText) && !expHasNot) score *= 0.3;
+              if(score > bestScore) { bestScore = score; bestMatch = letter; }
+            }
+            if(bestScore > 0.5) correct = bestMatch;
           }
         }
       }
