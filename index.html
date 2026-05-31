@@ -857,35 +857,41 @@ async function processFile(file) {
 }
 
 async function extractPDFTextViaAPI(pdfBytes) {
-  // Use /Length-based stream extraction to avoid false 'stream' matches inside compressed data.
-  // For each 'stream\r?\n' keyword, look back up to 600 bytes for /Length NNN, then slice
-  // exactly that many bytes — no endstream scanning needed.
   const decoder = new TextDecoder('latin1');
   const raw = decoder.decode(pdfBytes);
 
-  // Find all /Length NNN occurrences and their positions
-  // Then find the next 'stream\r?\n' after each one
-  const lengthRe = /\/Length\s+(\d+)/g;
-  const streamRe = /stream\r?\n/g;
-
-  // Build a list of stream start positions
-  const streamStarts = [];
-  let sm;
-  while ((sm = streamRe.exec(raw)) !== null) {
-    streamStarts.push(sm.index + sm[0].length);
+  // Build sorted list of all /Length NNN positions in the file
+  const lengthMap = []; // [{end, val}] sorted by end position
+  const lengthRe = /\/Length\s+(\d+)\b/g;
+  let lm;
+  while ((lm = lengthRe.exec(raw)) !== null) {
+    lengthMap.push({ end: lm.index + lm[0].length, val: parseInt(lm[1]) });
   }
 
-  // For each stream start, find the /Length that precedes it (within 600 chars)
+  // Binary search: find nearest /Length ending before streamStart within 2000 chars
+  function findLength(streamStart) {
+    let lo = 0, hi = lengthMap.length - 1, best = null;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (lengthMap[mid].end <= streamStart) {
+        if (streamStart - lengthMap[mid].end <= 2000) best = lengthMap[mid].val;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+    return best;
+  }
+
   let fullText = '';
-  for (const start of streamStarts) {
-    const lookBack = raw.substring(Math.max(0, start - 600), start);
-    const lMatches = [...lookBack.matchAll(/\/Length\s+(\d+)/g)];
-    if (!lMatches.length) continue;
-    const length = parseInt(lMatches[lMatches.length - 1][1]);
+  const streamRe = /stream\r?\n/g;
+  let sm;
+  while ((sm = streamRe.exec(raw)) !== null) {
+    const start = sm.index + sm[0].length;
+    const length = findLength(start);
     if (!length || start + length > pdfBytes.length) continue;
     const streamBytes = pdfBytes.slice(start, start + length);
-    if (streamBytes[0] !== 0x78) continue; // not zlib compressed
-
+    if (streamBytes[0] !== 0x78) continue;
     try {
       const ds = new DecompressionStream('deflate');
       const writer = ds.writable.getWriter();
@@ -895,8 +901,8 @@ async function extractPDFTextViaAPI(pdfBytes) {
       while (true) { const {done, value} = await reader.read(); if (done) break; chunks.push(value); }
       const totalLen = chunks.reduce((s, c) => s + c.length, 0);
       const combined = new Uint8Array(totalLen);
-      let offset = 0;
-      for (const chunk of chunks) { combined.set(chunk, offset); offset += chunk.length; }
+      let off = 0;
+      for (const c of chunks) { combined.set(c, off); off += c.length; }
       let decoded = '';
       for (let i = 0; i < combined.length; i++) decoded += String.fromCharCode(combined[i]);
 
@@ -920,7 +926,7 @@ async function extractPDFTextViaAPI(pdfBytes) {
             const rest = block.substring(j).trimStart();
             if (rest.startsWith('Tj')) {
               let s = content.replace(/\xa0/g, ' ').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\\(/g, '(').replace(/\\\)/g, ')').replace(/\\\\/g, '\\');
-              if (s.trim()) fullText += s;
+              if (s.trim()) fullText += s + '\n';
             }
             i = j;
           } else { i++; }
