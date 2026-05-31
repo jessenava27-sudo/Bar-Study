@@ -842,7 +842,7 @@ async function processFile(file) {
     let pdfBytes = new Uint8Array(arrayBuffer);
     if(ext === 'zip') { const extracted = extractPDFFromZip(pdfBytes); if(!extracted) { toast('No PDF found inside ZIP'); steps.classList.remove('show'); return; } pdfBytes = extracted; }
     setStep(1,'done'); setStep(2,'running');
-    const text = await extractPDFText(pdfBytes);
+    const text = await extractPDFTextViaAPI(pdfBytes);
     if(!text || text.length < 200) { toast('Could not read this PDF. Make sure it is an AdaptiBar Past Questions Report.'); steps.classList.remove('show'); return; }
     setStep(2,'done'); setStep(3,'running');
     const wrongOnly = document.getElementById('wrong-only').checked;
@@ -856,84 +856,44 @@ async function processFile(file) {
   } catch(err) { console.error('processFile error:', err); toast('Error: ' + err.message); steps.classList.remove('show'); }
 }
 
-async function extractPDFText(pdfBytes) {
-  const streamDelim = [115,116,114,101,97,109];
-  const endDelim = [101,110,100,115,116,114,101,97,109];
-  const streams = [];
-  let pos = 0;
-  while(pos < pdfBytes.length - 10) {
-    let found = false;
-    for(let i = pos; i < pdfBytes.length - streamDelim.length; i++) {
-      let match = true;
-      for(let j = 0; j < streamDelim.length; j++) { if(pdfBytes[i+j] !== streamDelim[j]) { match = false; break; } }
-      if(match) {
-        let dataStart = i + streamDelim.length;
-        if(pdfBytes[dataStart] === 13 && pdfBytes[dataStart+1] === 10) dataStart += 2;
-        else if(pdfBytes[dataStart] === 10) dataStart += 1;
-        else { pos = i + 1; found = true; break; }
-        let dataEnd = -1;
-        for(let k = dataStart; k < pdfBytes.length - endDelim.length; k++) {
-          let ematch = true;
-          for(let m = 0; m < endDelim.length; m++) { if(pdfBytes[k+m] !== endDelim[m]) { ematch = false; break; } }
-          if(ematch) { dataEnd = k; break; }
-        }
-        if(dataEnd === -1) { pos = i + 1; found = true; break; }
-        let end = dataEnd;
-        if(pdfBytes[end-1] === 10) end--;
-        if(end > 0 && pdfBytes[end-1] === 13) end--;
-        streams.push(pdfBytes.slice(dataStart, end));
-        pos = dataEnd + endDelim.length;
-        found = true; break;
-      }
-    }
-    if(!found) break;
+async function extractPDFTextViaAPI(pdfBytes) {
+  // Convert bytes to base64
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < pdfBytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...pdfBytes.subarray(i, i + chunkSize));
   }
-  let fullText = '';
-  for(const streamData of streams) {
-    if(streamData.length < 4) continue;
-    if(streamData[0] !== 0x78) continue;
-    try {
-      const ds = new DecompressionStream('deflate');
-      const writer = ds.writable.getWriter();
-      const reader = ds.readable.getReader();
-      writer.write(streamData); writer.close();
-      const chunks = [];
-      while(true) { const {done, value} = await reader.read(); if(done) break; chunks.push(value); }
-      const totalLen = chunks.reduce((s,c) => s+c.length, 0);
-      const combined = new Uint8Array(totalLen);
-      let offset = 0;
-      for(const chunk of chunks) { combined.set(chunk, offset); offset += chunk.length; }
-      let decoded = '';
-      for(let i = 0; i < combined.length; i++) decoded += String.fromCharCode(combined[i]);
-      if(!decoded.includes('BT') || !decoded.includes('Tj')) continue;
-      const btRe = /BT([\s\S]+?)ET/g;
-      let btMatch;
-      while((btMatch = btRe.exec(decoded)) !== null) {
-        const block = btMatch[1];
-        let i = 0;
-        while(i < block.length) {
-          if(block[i] === '(') {
-            let j = i + 1, depth = 1;
-            while(j < block.length && depth > 0) {
-              if(block[j] === '\\' && j+1 < block.length) j += 2;
-              else if(block[j] === '(') { depth++; j++; }
-              else if(block[j] === ')') { depth--; j++; }
-              else j++;
-            }
-            const content = block.substring(i+1, j-1);
-            const rest = block.substring(j).trimStart();
-            if(rest.startsWith('Tj')) {
-              let s = content.replace(/\xa0/g, ' ').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\\(/g, '(').replace(/\\\)/g, ')').replace(/\\\\/g, '\\');
-              if(s.trim()) fullText += s;
-            }
-            i = j;
-          } else { i++; }
-        }
-        fullText += '\n';
-      }
-    } catch(e) {}
+  const base64Data = btoa(binary);
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 8000,
+      messages: [{
+        role: 'user',
+        content: [
+          {
+            type: 'document',
+            source: { type: 'base64', media_type: 'application/pdf', data: base64Data }
+          },
+          {
+            type: 'text',
+            text: 'Extract the full plain text from this AdaptiBar PDF report. Output ONLY the raw text content with no commentary, no markdown formatting, and no added explanation. Preserve all question numbers, answer lines (e.g. "You answered X. The correct answer is Y" or "You correctly answered X"), question text, answer choices, and explanations exactly as they appear.'
+          }
+        ]
+      }]
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error('API error: ' + (err.error?.message || response.status));
   }
-  return fullText;
+
+  const data = await response.json();
+  return data.content.map(b => b.type === 'text' ? b.text : '').join('\n');
 }
 
 function extractPDFFromZip(bytes) {
