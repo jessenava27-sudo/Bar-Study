@@ -857,43 +857,79 @@ async function processFile(file) {
 }
 
 async function extractPDFTextViaAPI(pdfBytes) {
-  // Convert bytes to base64
-  let binary = '';
-  const chunkSize = 8192;
-  for (let i = 0; i < pdfBytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...pdfBytes.subarray(i, i + chunkSize));
-  }
-  const base64Data = btoa(binary);
+  // Use /Length-based stream extraction to avoid false 'stream' matches inside compressed data.
+  // For each 'stream\r?\n' keyword, look back up to 600 bytes for /Length NNN, then slice
+  // exactly that many bytes — no endstream scanning needed.
+  const decoder = new TextDecoder('latin1');
+  const raw = decoder.decode(pdfBytes);
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 8000,
-      messages: [{
-        role: 'user',
-        content: [
-          {
-            type: 'document',
-            source: { type: 'base64', media_type: 'application/pdf', data: base64Data }
-          },
-          {
-            type: 'text',
-            text: 'Extract the full plain text from this AdaptiBar PDF report. Output ONLY the raw text content with no commentary, no markdown formatting, and no added explanation. Preserve all question numbers, answer lines (e.g. "You answered X. The correct answer is Y" or "You correctly answered X"), question text, answer choices, and explanations exactly as they appear.'
-          }
-        ]
-      }]
-    })
-  });
+  // Find all /Length NNN occurrences and their positions
+  // Then find the next 'stream\r?\n' after each one
+  const lengthRe = /\/Length\s+(\d+)/g;
+  const streamRe = /stream\r?\n/g;
 
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error('API error: ' + (err.error?.message || response.status));
+  // Build a list of stream start positions
+  const streamStarts = [];
+  let sm;
+  while ((sm = streamRe.exec(raw)) !== null) {
+    streamStarts.push(sm.index + sm[0].length);
   }
 
-  const data = await response.json();
-  return data.content.map(b => b.type === 'text' ? b.text : '').join('\n');
+  // For each stream start, find the /Length that precedes it (within 600 chars)
+  let fullText = '';
+  for (const start of streamStarts) {
+    const lookBack = raw.substring(Math.max(0, start - 600), start);
+    const lMatches = [...lookBack.matchAll(/\/Length\s+(\d+)/g)];
+    if (!lMatches.length) continue;
+    const length = parseInt(lMatches[lMatches.length - 1][1]);
+    if (!length || start + length > pdfBytes.length) continue;
+    const streamBytes = pdfBytes.slice(start, start + length);
+    if (streamBytes[0] !== 0x78) continue; // not zlib compressed
+
+    try {
+      const ds = new DecompressionStream('deflate');
+      const writer = ds.writable.getWriter();
+      const reader = ds.readable.getReader();
+      writer.write(streamBytes); writer.close();
+      const chunks = [];
+      while (true) { const {done, value} = await reader.read(); if (done) break; chunks.push(value); }
+      const totalLen = chunks.reduce((s, c) => s + c.length, 0);
+      const combined = new Uint8Array(totalLen);
+      let offset = 0;
+      for (const chunk of chunks) { combined.set(chunk, offset); offset += chunk.length; }
+      let decoded = '';
+      for (let i = 0; i < combined.length; i++) decoded += String.fromCharCode(combined[i]);
+
+      if (!decoded.includes('BT') || !decoded.includes('Tj')) continue;
+
+      const btRe = /BT([\s\S]+?)ET/g;
+      let btMatch;
+      while ((btMatch = btRe.exec(decoded)) !== null) {
+        const block = btMatch[1];
+        let i = 0;
+        while (i < block.length) {
+          if (block[i] === '(') {
+            let j = i + 1, depth = 1;
+            while (j < block.length && depth > 0) {
+              if (block[j] === '\\' && j + 1 < block.length) j += 2;
+              else if (block[j] === '(') { depth++; j++; }
+              else if (block[j] === ')') { depth--; j++; }
+              else j++;
+            }
+            const content = block.substring(i + 1, j - 1);
+            const rest = block.substring(j).trimStart();
+            if (rest.startsWith('Tj')) {
+              let s = content.replace(/\xa0/g, ' ').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\\(/g, '(').replace(/\\\)/g, ')').replace(/\\\\/g, '\\');
+              if (s.trim()) fullText += s;
+            }
+            i = j;
+          } else { i++; }
+        }
+        fullText += '\n';
+      }
+    } catch (e) {}
+  }
+  return fullText;
 }
 
 function extractPDFFromZip(bytes) {
