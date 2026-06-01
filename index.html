@@ -462,6 +462,7 @@ const QUESTIONS_DATA = [{"num": "2317", "topic": "Civil Procedure", "subtopic": 
 let questions = JSON.parse(JSON.stringify(QUESTIONS_DATA));
 let ruleComfort = {};
 const STATUSES = ['Not Started','Reviewed','More Practice Needed','Mastered'];
+let deletedKeys = new Set();
 const BADGE_CLASS = {'Not Started':'badge-not-started','Reviewed':'badge-reviewed','More Practice Needed':'badge-practice','Mastered':'badge-mastered'};
 const STATUS_CLASS = {'Not Started':'not-started','Reviewed':'reviewed','More Practice Needed':'practice','Mastered':'mastered'};
 
@@ -469,6 +470,7 @@ const STATUS_CLASS = {'Not Started':'not-started','Reviewed':'reviewed','More Pr
 function save(changedIdxs) {
   localStorage.setItem('mbe_q_v3', JSON.stringify(questions));
   localStorage.setItem('mbe_comfort_v3', JSON.stringify(ruleComfort));
+  localStorage.setItem('mbe_deleted_v3', JSON.stringify([...deletedKeys]));
 }
 
 function load() {
@@ -482,13 +484,16 @@ function load() {
         const lsMap = {};
         parsed.forEach(q => lsMap[q.num+'|'+q.topic+'|'+q.subtopic] = q);
         // Keep hardcoded questions not in localStorage (preserves rules/takeaways)
-        const defaults = questions.filter(q => !lsMap[q.num+'|'+q.topic+'|'+q.subtopic]);
+        // but exclude any that the user has explicitly deleted
+        const defaults = questions.filter(q => !lsMap[q.num+'|'+q.topic+'|'+q.subtopic] && !deletedKeys.has(q.num+'|'+q.topic+'|'+q.subtopic));
         // localStorage wins for everything it has
         questions = parsed.concat(defaults);
       }
     }
     const sc = localStorage.getItem('mbe_comfort_v3');
     if (sc) ruleComfort = JSON.parse(sc);
+    const sd = localStorage.getItem('mbe_deleted_v3');
+    if (sd) deletedKeys = new Set(JSON.parse(sd));
   } catch(e) { console.warn('Load error:', e); }
 }
 
@@ -1038,6 +1043,8 @@ function toggleMastered(idx){
 }
 function deleteQuestion(idx){
   if(!confirm('Delete this question?'))return;
+  const q = questions[idx];
+  deletedKeys.add(q.num+'|'+q.topic+'|'+q.subtopic);
   questions.splice(idx,1); save();
   openCards=new Set([...openCards].filter(i=>i!==idx).map(i=>i>idx?i-1:i));
   renderQuestionLog(); renderDashboard(); toast('Deleted');
