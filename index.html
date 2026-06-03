@@ -1406,6 +1406,14 @@ function parseQuestionText(raw) {
       || corrSearchText.match(/(?:correct answer is|answer is|answer:)\s*([A-D])/i)
       || corrSearchText.match(/\b([A-D])\s+is\s+(?:the\s+)?correct/i);
     if(corrM) correct = (corrM[1] || corrM[0].trim()[0]).toUpperCase();
+    // Elimination fallback: if 3 choices are marked incorrect, the 4th is correct
+    if(!correct) {
+      const incorrectLetters = new Set([...corrSearchText.matchAll(/\(([A-D])\)\s+is\s+incorrect/gi)].map(m=>m[1].toUpperCase()));
+      if(incorrectLetters.size === 3) {
+        const remaining = ['A','B','C','D'].filter(l => !incorrectLetters.has(l));
+        if(remaining.length === 1) correct = remaining[0];
+      }
+    }
     const firstChoiceIdx = text.search(/\n\s*[A-D]\s*[\)\.\:]/);
     const bodyRaw = firstChoiceIdx > 0 ? text.slice(0, firstChoiceIdx) : text.slice(0, 800);
     questionBody = bodyRaw.split('\n').filter(l => { const t=l.trim(); return t.length>20 && !TOPICS.includes(t) && !/^#?\d+/.test(t); }).join(' ').replace(/\s{2,}/g,' ').trim();
