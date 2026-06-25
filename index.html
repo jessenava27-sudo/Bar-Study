@@ -483,15 +483,33 @@ function load() {
     if (sq) {
       const parsed = JSON.parse(sq);
       if (parsed && parsed.length > 0) {
-        // localStorage is the source of truth — use it directly
-        // Merge: start with hardcoded defaults for any question not in localStorage
+        const STATUS_RANK = {'Not Started':0,'Reviewed':1,'More Practice Needed':2,'Mastered':3};
+        const qKey = q => (q.num==='N/A' ? q.num+'|'+q.topic+'|'+q.subtopic+'|'+(q.question||'').slice(0,60) : q.num+'|'+q.topic+'|'+q.subtopic);
+        // QUESTIONS_DATA (hardcoded) is the merged source of truth — localStorage only wins if more advanced
         const lsMap = {};
-        parsed.forEach(q => lsMap[(q.num==='N/A'?q.num+'|'+q.topic+'|'+q.subtopic+'|'+(q.question||'').slice(0,60):q.num+'|'+q.topic+'|'+q.subtopic)] = q);
-        // Keep hardcoded questions not in localStorage (preserves rules/takeaways)
-        // but exclude any that the user has explicitly deleted
-        const defaults = questions.filter(q => !lsMap[(q.num==='N/A'?q.num+'|'+q.topic+'|'+q.subtopic+'|'+(q.question||'').slice(0,60):q.num+'|'+q.topic+'|'+q.subtopic)] && !deletedKeys.has((q.num==='N/A'?q.num+'|'+q.topic+'|'+q.subtopic+'|'+(q.question||'').slice(0,60):q.num+'|'+q.topic+'|'+q.subtopic)));
-        // localStorage wins for everything it has — also filter deleted from parsed
-        questions = parsed.filter(q => !deletedKeys.has((q.num==='N/A'?q.num+'|'+q.topic+'|'+q.subtopic+'|'+(q.question||'').slice(0,60):q.num+'|'+q.topic+'|'+q.subtopic))).concat(defaults);
+        parsed.forEach(q => lsMap[qKey(q)] = q);
+        const merged = [];
+        const seen = new Set();
+        // Walk hardcoded order, apply LS progress only when strictly more advanced
+        questions.forEach(q => {
+          const k = qKey(q);
+          if (deletedKeys.has(k)) return;
+          seen.add(k);
+          const ls = lsMap[k];
+          if (!ls) { merged.push(q); return; }
+          const winner = Object.assign({}, q); // start with hardcoded (has merged status/notes)
+          const hRank = STATUS_RANK[q.status] || 0;
+          const lRank = STATUS_RANK[ls.status] || 0;
+          if (lRank > hRank) { winner.status = ls.status; winner.mastered = ls.mastered; }
+          if ((ls.notes||'').length > (winner.notes||'').length) winner.notes = ls.notes;
+          if ((ls.srInterval||0) > (winner.srInterval||0)) {
+            winner.srDue = ls.srDue; winner.srInterval = ls.srInterval; winner.srEase = ls.srEase;
+          }
+          merged.push(winner);
+        });
+        // Add any LS-only questions not in hardcoded data
+        parsed.forEach(q => { const k = qKey(q); if (!seen.has(k) && !deletedKeys.has(k)) merged.push(q); });
+        questions = merged;
       }
     }
     const sc = localStorage.getItem('mbe_comfort_v3');
