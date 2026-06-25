@@ -1207,7 +1207,9 @@ function parseQuestionText(raw) {
   // Detect format: BARBRI/AdaptiBar formats — "* A" bullets OR plain "A Text" with Answer Discussion
   const isBarbri = /\bResponses\b/i.test(text) || /\*\s*[A-D]\s*\n/.test(text) ||
                    /this is the correct answer/i.test(text) || /^\*\s*[A-D]\s*$/m.test(text) ||
-                   (/Answer Discussion/i.test(text) && /^[A-D]\s+\w/m.test(text));
+                   (/Answer Discussion/i.test(text) && /^[A-D]\s+\w/m.test(text)) ||
+                   /^\*\s*[A-D]\S/.test(text) ||  // "* AText" inline format (BARBRI sample MBE)
+                   /Correct answer\s*$/.test(text.split('\n').filter(l => /^\*\s*[A-D]/.test(l.trim()))[0]||'');
 
   const choiceMap = {};
   let correct = '', questionBody = '', rule = '', takeaway = '';
@@ -1216,7 +1218,7 @@ function parseQuestionText(raw) {
     // === BARBRI / AdaptiBar with "* A" bullet format ===
 
     // Bound question body at first choice line
-    const firstStarLine = lines.findIndex(l => /^\*\s*[A-D]\s*$/.test(l.trim()));
+    const firstStarLine = lines.findIndex(l => /^\*\s*[A-D]\s*$/.test(l.trim()) || /^\*\s*[A-D]\s*[A-Z]/.test(l.trim()));
     const responsesLine = lines.findIndex(l => /^\s*Responses\s*$/i.test(l.trim()));
     // For plain "A Text" format: find first line that looks like a choice
     const firstPlainChoiceLine = (firstStarLine < 0 && responsesLine < 0)
@@ -1245,9 +1247,24 @@ function parseQuestionText(raw) {
     }
 
     // Parse choices
+    const starInlineIncorrect = new Set(); // tracks letters explicitly marked "Incorrect answer" in BARBRI inline format
     let i = 0;
     while(i < lines.length) {
       const t = lines[i].trim();
+
+      // "* AText...Correct answer" or "* AText...Incorrect answer" — BARBRI sample MBE inline format
+      const starInlineM = t.match(/^\*\s*([A-D])\s*([A-Z].{2,})/);
+      if(starInlineM && !t.match(/^\*\s*[A-D]\s*$/)) {
+        const letter = starInlineM[1];
+        let choiceText = starInlineM[2];
+        // Detect "Incorrect answer" suffix — this choice is definitely wrong
+        const hasIncorrectSuffix = /Incorrect answer\s*$/i.test(choiceText);
+        // Strip both suffixes (they are UI labels, not choice content)
+        choiceText = choiceText.replace(/\s*(?:Correct|Incorrect) answer\s*$/i, '').trim();
+        if(choiceText.length > 2 && !choiceMap[letter]) choiceMap[letter] = choiceText;
+        if(hasIncorrectSuffix) starInlineIncorrect.add(letter);
+        i++; continue;
+      }
 
       // "* A" bullet on its own line — choice text on the next line
       const starM = t.match(/^\*\s*([A-D])\s*$/);
@@ -1321,11 +1338,19 @@ function parseQuestionText(raw) {
     const expM = text.match(/Answer Discussion\s*[-\u2013]\s*(?:Incorrect|Correct)[^\n]*\n([\s\S]{30,2000})/i) ||
                  text.match(/Answer Discussion[^\n]*\n([\s\S]{30,2000})/i);
 
+    // BARBRI sample MBE format: explanation appears as a final "* " bullet (no letter after *)
+    // e.g. "* Judicial notice operates as a substitute..."
+    let bulletExpText = '';
+    const bulletExpLines = lines.filter(l => /^\*\s+[^A-D]/.test(l.trim()) || (/^\*\s/.test(l.trim()) && !/^\*\s*[A-D]/.test(l.trim())));
+    if(bulletExpLines.length > 0) {
+      bulletExpText = bulletExpLines.map(l => l.trim().replace(/^\*\s*/,'')).join(' ').trim();
+    }
+
     // Fallback: find inline explanation after the last choice (no Answer Discussion header)
     // Detect text after the last "* X / bare X" choice block
     const lastChoiceLetter = ['D','C','B','A'].find(l => choiceMap[l]);
-    let inlineExpText = '';
-    if(lastChoiceLetter) {
+    let inlineExpText = bulletExpText; // prefer bullet explanation if found
+    if(!inlineExpText && lastChoiceLetter) {
       const lastChoiceVal = choiceMap[lastChoiceLetter];
       const lastChoiceIdx = text.lastIndexOf(lastChoiceVal);
       if(lastChoiceIdx >= 0) {
@@ -1415,6 +1440,20 @@ function parseQuestionText(raw) {
                            inlineExpText.match(/^([A-D])\s+is\s+correct/m);
         if(corrInline) correct = corrInline[1].toUpperCase();
       }
+      // Inline explanation elimination: "(A) is incorrect", "(B) is incorrect", etc.
+      if(!correct) {
+        const expIncorrectSet = new Set([...inlineExpText.matchAll(/\(([A-D])\)\s+is\s+incorrect/gi)].map(m=>m[1].toUpperCase()));
+        if(expIncorrectSet.size > 0) {
+          const remaining = ['A','B','C','D'].filter(l => !expIncorrectSet.has(l) && choiceMap[l]);
+          if(remaining.length === 1) correct = remaining[0];
+        }
+      }
+    }
+
+    // Final fallback: use starInlineIncorrect labels to eliminate (BARBRI sample MBE suffix format)
+    if(!correct && starInlineIncorrect.size > 0) {
+      const remaining = ['A','B','C','D'].filter(l => !starInlineIncorrect.has(l) && choiceMap[l]);
+      if(remaining.length === 1) correct = remaining[0];
     }
 
   } else {
@@ -1452,6 +1491,17 @@ function parseQuestionText(raw) {
 
   if(Object.keys(choiceMap).length < 2) return null;
   if(!questionBody || questionBody.length < 5) return null;
+
+  // Universal correct-answer resolution: scan all available explanation text for "(X) is incorrect" pattern
+  // This is the primary signal in BARBRI explanations — the correct answer is whichever letter is never called incorrect
+  if(!correct && rule) {
+    const expIncorrect = new Set([...rule.matchAll(/\(([A-D])\)\s+is\s+incorrect/gi)].map(m => m[1].toUpperCase()));
+    if(expIncorrect.size > 0) {
+      const remaining = ['A','B','C','D'].filter(l => !expIncorrect.has(l) && choiceMap[l]);
+      if(remaining.length === 1) correct = remaining[0];
+    }
+  }
+
   const choicesStr = Object.entries(choiceMap).sort().map(([l,t])=>`${l})  ${t}`).join('\n\n');
   return { num, topic, subtopic, question: questionBody, choices: choicesStr, correct, rule, takeaway, notes: '', status: 'Not Started', mastered: 'No' };
 }
